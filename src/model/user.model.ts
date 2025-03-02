@@ -19,6 +19,7 @@ export interface User {
   refresh_tokens: RefreshToken[];
   name?: string | null;
   type?: string | null;
+  is_anonymous?: boolean;
 }
 
 export const RefreshTokenSchema = new Schema<RefreshToken>({
@@ -74,6 +75,10 @@ export const UserSchema = new Schema<User>({
   type: {
     type: String,
     default: null,
+  },
+  is_anonymous: {
+    type: Boolean,
+    default: false,
   },
 });
 

@@ -64,6 +64,12 @@ export function start(app: Express, options?: StartOptions) {
   // Setup routes
   app.post("/auth/login", LoginController.login);
   app.post("/auth/signup", SignupController.signupWithoutVerificationHandler);
+  app.post("/auth/signup/anonymous", SignupController.signupAnonymousHandler);
+  app.post(
+    "/auth/signup/merge",
+    jwtDecodeMiddleware,
+    SignupController.mergeAnonymousAccountHandler
+  );
   app.post(
     "/auth/send-email-verification",
     SignupController.sendEmailVerificationHandler

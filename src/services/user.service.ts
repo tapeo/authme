@@ -40,10 +40,15 @@ export class UserService {
     return user;
   };
 
-  public static post = async (email: string, passwordEncrypted: string) => {
+  public static post = async (
+    email: string,
+    passwordEncrypted: string,
+    isAnonymous: boolean = false
+  ) => {
     const user = await User.create({
       email,
       password: passwordEncrypted,
+      is_anonymous: isAnonymous,
     });
 
     return user;
