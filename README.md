@@ -21,6 +21,7 @@ npm install @tapeo/authme
 - TypeScript support
 - Secure cookie handling
 - CORS configuration
+- Anonymous authentication with account merging
 
 ## Usage
 
@@ -98,6 +99,10 @@ POST /auth/logout - Logout user
 POST /auth/signup - Register new user
 POST /auth/refresh-token - Refresh access token
 
+Anonymous authentication:
+POST /auth/signup/anonymous - Create anonymous account
+POST /auth/signup/merge - Merge anonymous account with regular account (protected)
+
 Email verification:
 POST /auth/send-email-verification - Send verification email
 POST /auth/signup/with-verification - Register with email verification
@@ -114,6 +119,30 @@ DELETE /user - Delete current user (protected)
 Google OAuth:
 GET /auth/google - Initiate Google OAuth flow
 GET /auth/google/callback - Google OAuth callback
+```
+
+### Anonymous authentication flow
+
+1. Create an anonymous account:
+
+```typescript
+POST / auth / signup / anonymous;
+// Response includes access_token and refresh_token
+```
+
+2. Use the account with the provided tokens
+
+3. When ready, merge with a regular account:
+
+```typescript
+POST /auth/signup/merge
+Headers: {
+  Authorization: "Bearer <access_token>"
+}
+Body: {
+  "email": "user@example.com",
+  "password": "newpassword"
+}
 ```
 
 ## Local development
@@ -158,3 +187,4 @@ An Insomnia collection is included in the repository to help you test all the av
 - Uses MongoDB's TTL indexes for automatic token cleanup
 - Implements rate limiting for sensitive operations
 - Securely handles password reset flows
+- Validates anonymous account ownership during merging
