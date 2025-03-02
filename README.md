@@ -81,35 +81,7 @@ npm install --save-dev tsconfig-paths
 
 ### Environment variables
 
-Create a `.env` file in your project root:
-
-```env
-# Environment
-ENV="development"
-
-# MongoDB
-MONGO_URI="your-mongodb-connection-string"
-
-# JWT
-ACCESS_TOKEN_SECRET="your-access-token-secret"
-REFRESH_TOKEN_SECRET="your-refresh-token-secret"
-ENCRYPTION_KEY="your-encryption-key"
-
-# Email settings
-EMAIL_FROM="your-email@example.com"
-EMAIL_SUBJECT="Password Reset Request"
-EMAIL_NAME="Your App Name"
-
-# Google OAuth (optional)
-GOOGLE_CLIENT_ID="your-google-client-id"
-GOOGLE_CLIENT_SECRET="your-google-client-secret"
-GOOGLE_REDIRECT_URI="http://localhost:8080/auth/google/callback"
-GOOGLE_AUTHENTICATED_REDIRECT_URL="http://localhost:3000/authenticated"
-GOOGLE_ERROR_REDIRECT_URL="http://localhost:3000"
-
-# Development
-DEV_SERVER_HTTPS=false
-```
+Create a `.env` file in your project root, following the `.env.example` file.
 
 #### Generate a new encryption key
 
