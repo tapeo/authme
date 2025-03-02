@@ -1,0 +1,43 @@
+# Source files
+src/
+app.ts
+index.ts
+
+# Development files
+.env
+.env.example
+.gitignore
+.eslintrc
+.eslintignore
+.prettierrc
+.prettierignore
+.vscode/
+.idea/
+.DS_Store
+.cursor/
+
+# Build artifacts
+node_modules/
+coverage/
+.nyc_output/
+*.log
+
+# Docker
+Dockerfile
+docker-compose.yml
+
+# SSL certificates
+*.pem
+*.key
+*.crt
+
+# Tests
+__tests__/
+*.test.ts
+*.spec.ts
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+.circleci/

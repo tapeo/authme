@@ -1,0 +1,12 @@
+.DS_Store
+node_modules
+dist
+.env
+uploads
+secrets/
+cert-key.pem
+cert.pem
+.idea/
+.env.prod
+.cursor
+dist
