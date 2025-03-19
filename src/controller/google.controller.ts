@@ -133,17 +133,22 @@ export class GoogleController {
           if (name) updateData.name = name;
           if (pictureUrl) updateData.picture_url = pictureUrl;
 
-          await UserService.patch(user.id, updateData);
+          await UserService.patch(user._id.toString(), updateData);
         }
       } else if (pictureUrl && !user.picture_url) {
-        await UserService.patch(user.id, { picture_url: pictureUrl });
+        await UserService.patch(user._id.toString(), {
+          picture_url: pictureUrl,
+        });
       }
 
-      const jwtAccessToken = generateAccessToken(user.id.toString(), email);
-      const jwtRefreshToken = generateRefreshToken(user.id.toString(), email);
+      const jwtAccessToken = generateAccessToken(user._id.toString(), email);
+      const jwtRefreshToken = generateRefreshToken(user._id.toString(), email);
 
       const encryptedRefreshToken = encrypt(jwtRefreshToken);
-      await RefreshTokenService.post(user.id, encryptedRefreshToken);
+      await RefreshTokenService.post(
+        user._id.toString(),
+        encryptedRefreshToken
+      );
 
       setCookies(jwtAccessToken, jwtRefreshToken, res);
 

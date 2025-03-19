@@ -26,21 +26,30 @@ export class UserService {
     return users;
   };
 
-  public static getById = async (id: string, ignore: string[] = []) => {
+  public static getById = async (
+    id: string,
+    ignore: string[] = []
+  ): Promise<User> => {
     const user = await User.findById(id).select(
       ignore.map((field) => `-${field}`).join(" ")
     );
 
+    if (!user) {
+      throw new Error("User not found");
+    }
+
     return user;
   };
 
-  public static getUserByEmail = async (email: string) => {
+  public static getUserByEmail = async (email: string): Promise<User> => {
     try {
-      let emailSanitized = email.trim().toLowerCase();
+      if (!email) {
+        throw new Error("Email is required");
+      }
 
-      const user = await User.findOne({
-        email: { $regex: new RegExp(`^${emailSanitized}$`, "i") },
-      });
+      const emailSanitized = email.trim();
+
+      const user = await User.findOne({ email: emailSanitized });
 
       if (!user) {
         throw new Error("User not found");
@@ -49,7 +58,7 @@ export class UserService {
       return user;
     } catch (error) {
       console.error(`Error finding user by email: ${email}`, error);
-      throw error;
+      throw new Error("Error retrieving user");
     }
   };
 
@@ -57,18 +66,26 @@ export class UserService {
     email: string,
     passwordEncrypted: string,
     isAnonymous: boolean = false
-  ) => {
+  ): Promise<User> => {
     const user = await User.create({
       email,
       password: passwordEncrypted,
       is_anonymous: isAnonymous,
     });
 
+    if (!user) {
+      throw new Error("Cannot create user");
+    }
+
     return user;
   };
 
-  public static patch = async (idUser: string, data: any) => {
+  public static patch = async (idUser: string, data: any): Promise<User> => {
     const user = await User.findByIdAndUpdate(idUser, data, { new: true });
+
+    if (!user) {
+      throw new Error("User not found");
+    }
 
     return user;
   };

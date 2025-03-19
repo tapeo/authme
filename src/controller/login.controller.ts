@@ -33,17 +33,20 @@ export class LoginController {
 
     if (passwordMatch) {
       const accessToken = generateAccessToken(
-        user.id.toString(),
+        user._id.toString(),
         sanitizedEmail
       );
       const refreshToken = generateRefreshToken(
-        user.id.toString(),
+        user._id.toString(),
         sanitizedEmail
       );
 
       const encryptedRefreshToken = encrypt(refreshToken);
 
-      await RefreshTokenService.post(user.id, encryptedRefreshToken);
+      await RefreshTokenService.post(
+        user._id.toString(),
+        encryptedRefreshToken
+      );
 
       setCookies(accessToken, refreshToken, res);
 

@@ -173,14 +173,17 @@ export class SignupController {
 
       const user = await UserService.post(randomEmail, passwordEncrypted, true);
 
-      const accessToken = generateAccessToken(user.id.toString(), randomEmail);
+      const accessToken = generateAccessToken(user._id.toString(), randomEmail);
       const refreshToken = generateRefreshToken(
-        user.id.toString(),
+        user._id.toString(),
         randomEmail
       );
       const encryptedRefreshToken = encrypt(refreshToken);
 
-      await RefreshTokenService.post(user.id, encryptedRefreshToken);
+      await RefreshTokenService.post(
+        user._id.toString(),
+        encryptedRefreshToken
+      );
       setCookies(accessToken, refreshToken, res);
 
       await Telegram.send({
@@ -191,7 +194,7 @@ export class SignupController {
         status: "success",
         message: "Anonymous registration successful",
         data: {
-          id: user.id,
+          id: user._id.toString(),
           access_token: accessToken,
           refresh_token: refreshToken,
         },
@@ -342,7 +345,7 @@ export class SignupController {
         status: "success",
         message: "Registration successful, now you can login",
         data: {
-          id: user.id,
+          id: user._id.toString(),
         },
       });
     } catch (error) {
