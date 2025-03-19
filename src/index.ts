@@ -96,9 +96,7 @@ export function start(app: Express, options?: StartOptions) {
   app.delete("/user", jwtDecodeMiddleware, UserController.deleteMeHandler);
 
   app.get("/auth/reset-password.html", (req, res) => {
-    res.sendFile(
-      path.join(__dirname, "..", "base", "public", "reset-password.html")
-    );
+    res.sendFile(path.join(__dirname, "src", "public", "reset-password.html"));
   });
 
   const host = options?.host || "0.0.0.0";
