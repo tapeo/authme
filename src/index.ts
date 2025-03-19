@@ -27,8 +27,7 @@ export * from "./model";
 export * from "./services";
 export * from "./types";
 
-const __dirname = dirname(__filename);
-const publicPath = path.join(__dirname, "public");
+const publicPath = path.join(dirname(__filename), "public");
 
 interface StartOptions {
   host?: string;
@@ -100,7 +99,7 @@ export function start(app: Express, options?: StartOptions) {
   app.delete("/user", jwtDecodeMiddleware, UserController.deleteMeHandler);
 
   app.get("/auth/reset-password.html", (req, res) => {
-    res.sendFile(path.join(publicPath, "reset-password.html"));
+    res.sendFile(publicPath + "/reset-password.html");
   });
 
   const host = options?.host || "0.0.0.0";
