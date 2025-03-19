@@ -1,6 +1,11 @@
 import { connect } from "mongoose";
 
-export const connectDB = async () => {
+type DbOptions = {
+  prodDbName?: string;
+  testDbName?: string;
+};
+
+export const connectDB = async (options: DbOptions) => {
   const mongoUri = process.env.MONGO_URI;
 
   if (!mongoUri) {
@@ -12,9 +17,9 @@ export const connectDB = async () => {
 
   let databaseName;
   if (env === "production") {
-    databaseName = "prod";
+    databaseName = options.prodDbName || "prod";
   } else {
-    databaseName = "test";
+    databaseName = options.testDbName || "test";
   }
 
   const uri = `${mongoUri}/${databaseName}?retryWrites=true&w=majority`;

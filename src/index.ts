@@ -30,10 +30,15 @@ interface StartOptions {
   host?: string;
   port?: number;
   useHttps?: boolean;
+  prodDbName?: string;
+  testDbName?: string;
 }
 
 export function start(app: Express, options?: StartOptions) {
-  connectDB();
+  connectDB({
+    prodDbName: options?.prodDbName,
+    testDbName: options?.testDbName,
+  });
 
   console.log(process.env.ENV);
 
@@ -96,30 +101,27 @@ export function start(app: Express, options?: StartOptions) {
     );
   });
 
-  // Start server if options are provided
-  if (options) {
-    const host = options.host || "0.0.0.0";
-    const port = options.port || 8080;
-    const useHttps =
-      options.useHttps || process.env.DEV_SERVER_HTTPS === "true";
+  const host = options?.host || "0.0.0.0";
+  const port = options?.port || 8080;
 
-    if (useHttps) {
-      https
-        .createServer(
-          {
-            key: fs.readFileSync("cert-key.pem"),
-            cert: fs.readFileSync("cert.pem"),
-          },
-          app
-        )
-        .listen(port, host, () => {
-          console.log(`[server]: Server is running at https://${host}:${port}`);
-        });
-    } else {
-      app.listen(port, host, () => {
-        console.log(`[server]: Server is running at http://${host}:${port}`);
+  const useHttps = options?.useHttps || process.env.DEV_SERVER_HTTPS === "true";
+
+  if (useHttps) {
+    https
+      .createServer(
+        {
+          key: fs.readFileSync("cert-key.pem"),
+          cert: fs.readFileSync("cert.pem"),
+        },
+        app
+      )
+      .listen(port, host, () => {
+        console.log(`[server]: Server is running at https://${host}:${port}`);
       });
-    }
+  } else {
+    app.listen(port, host, () => {
+      console.log(`[server]: Server is running at http://${host}:${port}`);
+    });
   }
 
   return app;
