@@ -22,7 +22,10 @@ export const connectDB = async (options: DbOptions) => {
     databaseName = options.testDbName || "test";
   }
 
-  const uri = `${mongoUri}/${databaseName}?retryWrites=true&w=majority`;
+  const url = new URL(mongoUri);
+  url.pathname = `/${databaseName}`;
+
+  const uri = url.toString();
 
   try {
     await connect(uri);
