@@ -35,9 +35,22 @@ export class UserService {
   };
 
   public static getUserByEmail = async (email: string) => {
-    const user = await User.findOne({ email: email });
+    try {
+      let emailSanitized = email.trim().toLowerCase();
 
-    return user;
+      const user = await User.findOne({
+        email: { $regex: new RegExp(`^${emailSanitized}$`, "i") },
+      });
+
+      if (!user) {
+        throw new Error("User not found");
+      }
+
+      return user;
+    } catch (error) {
+      console.error(`Error finding user by email: ${email}`, error);
+      throw error;
+    }
   };
 
   public static post = async (
