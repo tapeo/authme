@@ -1,4 +1,5 @@
 import { config } from "dotenv";
+import { dirname } from "path";
 
 config();
 
@@ -25,6 +26,9 @@ export * from "./middleware";
 export * from "./model";
 export * from "./services";
 export * from "./types";
+
+const __dirname = dirname(__filename);
+const publicPath = path.join(__dirname, "public");
 
 interface StartOptions {
   host?: string;
@@ -60,7 +64,7 @@ export function start(app: Express, options?: StartOptions) {
 
   app.use(express.json());
   app.use(cookieParser());
-  app.use(express.static(path.join(__dirname, "public")));
+  app.use(express.static(publicPath));
   app.use(express.urlencoded({ extended: true }));
 
   // Extend Express Response
@@ -96,7 +100,7 @@ export function start(app: Express, options?: StartOptions) {
   app.delete("/user", jwtDecodeMiddleware, UserController.deleteMeHandler);
 
   app.get("/auth/reset-password.html", (req, res) => {
-    res.sendFile(path.join(__dirname, "public", "reset-password.html"));
+    res.sendFile(path.join(publicPath, "reset-password.html"));
   });
 
   const host = options?.host || "0.0.0.0";
