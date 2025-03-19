@@ -1,14 +1,11 @@
 import { Email } from "@/extensions/email.extension";
+import { emailOptions } from "@/index";
 import { User } from "@/model/user.model";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import { Request, Response } from "express";
 
 export class PasswordController {
-  private static fromEmail: string = process.env.EMAIL_FROM!;
-  private static subject: string = process.env.EMAIL_SUBJECT!;
-  private static emailName: string = process.env.EMAIL_NAME!;
-
   public static forgotPasswordHandler = async (req: Request, res: Response) => {
     const { email } = req.body;
 
@@ -29,9 +26,9 @@ export class PasswordController {
     await user.save();
 
     await Email.send({
-      from_email: this.fromEmail,
+      from_email: emailOptions?.from,
       to_email: user.email,
-      subject: this.subject,
+      subject: "Password Reset Request",
       html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <p>Hello,</p>
@@ -45,7 +42,7 @@ export class PasswordController {
         
         <p>If you didn't request this password reset, please ignore this email.</p>
         
-        <p>Best regards,<br>${this.emailName} Team</p>
+        <p>Best regards,<br>${emailOptions.name} Team</p>
         
         <hr style="margin: 20px 0; border: none; border-top: 1px solid #eee;">
         <p style="font-size: 12px; color: #666;">

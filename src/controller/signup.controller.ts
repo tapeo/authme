@@ -1,5 +1,6 @@
 import { Email } from "@/extensions/email.extension";
 import { Telegram } from "@/extensions/telegram.extension";
+import { emailOptions } from "@/index";
 import { setCookies } from "@/libs/cookie";
 import { encrypt } from "@/libs/crypto";
 import { generateAccessToken, generateRefreshToken } from "@/libs/jwt";
@@ -12,10 +13,6 @@ import { Request, Response } from "express";
 
 export class SignupController {
   private static expiresAt = 10 * 60 * 1000;
-
-  private static emailFrom = process.env.EMAIL_FROM!;
-  private static emailSubject = process.env.EMAIL_SUBJECT!;
-  private static emailName = process.env.EMAIL_NAME!;
 
   public static sendEmailVerificationHandler = async (
     req: Request,
@@ -51,22 +48,22 @@ export class SignupController {
     });
 
     await Email.send({
-      from_email: this.emailFrom,
+      from_email: emailOptions?.from,
       to_email: sanitizedEmail,
-      subject: this.emailSubject,
+      subject: "Email Verification",
       html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <p>Welcome to ${this.emailName}!</p>
+        <p>Welcome to ${emailOptions.name}!</p>
         
         <p>Your verification code is: <strong>${otp}</strong></p>
         
         <p>This code will expire in 10 minutes.</p>
         
-        <p>Best regards,<br>${this.emailName} Team</p>
+        <p>Best regards,<br>${emailOptions.name} Team</p>
 
         <hr style="margin: 20px 0; border: none; border-top: 1px solid #eee;">
         <p style="font-size: 12px; color: #666;">
-          You received this email because you signed up for ${this.emailName}. 
+          You received this email because you signed up for ${emailOptions.name}. 
           If you didn't request this, you can safely ignore this email.
         </p>
       </div>

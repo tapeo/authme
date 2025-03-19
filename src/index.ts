@@ -30,14 +30,25 @@ export * from "./types";
 const publicPath = path.join(dirname(__filename), "public");
 
 interface StartOptions {
-  host?: string;
-  port?: number;
-  useHttps?: boolean;
+  host: string;
+  port: number;
+  https?: boolean;
   prodDbName?: string;
   testDbName?: string;
+  email: {
+    name: string;
+    from: string;
+  };
 }
 
-export function start(app: Express, options?: StartOptions) {
+export let emailOptions: StartOptions["email"] = {
+  name: "Your App Name",
+  from: "email@example.com",
+};
+
+export function start(app: Express, options: StartOptions) {
+  emailOptions = options.email;
+
   connectDB({
     prodDbName: options?.prodDbName,
     testDbName: options?.testDbName,
@@ -105,7 +116,7 @@ export function start(app: Express, options?: StartOptions) {
   const host = options?.host || "0.0.0.0";
   const port = options?.port || 8080;
 
-  const useHttps = options?.useHttps || process.env.DEV_SERVER_HTTPS === "true";
+  const useHttps = options?.https || process.env.DEV_SERVER_HTTPS === "true";
 
   if (useHttps) {
     https
