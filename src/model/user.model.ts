@@ -86,15 +86,15 @@ export const UserSchema = new Schema<User>({
 UserSchema.index({ email: 1 }, { unique: true });
 
 UserSchema.pre("save", async function (next) {
-  if (mongooseOptions?.pre) {
-    mongooseOptions.pre(this);
+  if (mongooseOptions?.user_schema?.pre) {
+    mongooseOptions.user_schema.pre(this);
   }
   next();
 });
 
 UserSchema.post("save", async function (doc) {
-  if (mongooseOptions?.post) {
-    mongooseOptions.post(doc);
+  if (mongooseOptions?.user_schema?.post) {
+    mongooseOptions.user_schema.post(doc);
   }
 });
 

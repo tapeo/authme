@@ -1,11 +1,15 @@
-import { connect } from "mongoose";
+import { connect, Document } from "mongoose";
 
-type DbOptions = {
-  prodDbName?: string;
-  testDbName?: string;
+export type DbOptions = {
+  prod_db_name?: string;
+  test_db_name?: string;
+  user_schema?: {
+    pre?: (doc: Document) => void;
+    post?: (doc: Document) => void;
+  };
 };
 
-export const connectDB = async (options: DbOptions) => {
+export const connectDB = async (options?: DbOptions) => {
   const mongoUri = process.env.MONGO_URI;
 
   if (!mongoUri) {
@@ -17,9 +21,9 @@ export const connectDB = async (options: DbOptions) => {
 
   let databaseName;
   if (env === "production") {
-    databaseName = options.prodDbName || "prod";
+    databaseName = options?.prod_db_name || "prod";
   } else {
-    databaseName = options.testDbName || "test";
+    databaseName = options?.test_db_name || "test";
   }
 
   const url = new URL(mongoUri);

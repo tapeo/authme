@@ -3,7 +3,7 @@ import { dirname } from "path";
 
 config();
 
-import connectDB from "@/libs/mongo";
+import connectDB, { DbOptions } from "@/libs/mongo";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express, { Express } from "express";
@@ -19,7 +19,6 @@ import { PasswordController } from "@/controller/password.controller";
 import { RefreshTokenController } from "@/controller/refresh-token.controller";
 import { SignupController } from "@/controller/signup.controller";
 import jwtDecodeMiddleware from "@/middleware/jwt-decode";
-import { Document } from "mongoose";
 
 export * from "./extensions";
 export * from "./libs";
@@ -34,16 +33,11 @@ interface StartOptions {
   host: string;
   port: number;
   https?: boolean;
-  prodDbName?: string;
-  testDbName?: string;
   email: {
     name: string;
     from: string;
   };
-  mongoose?: {
-    pre?: (doc: Document) => void;
-    post?: (doc: Document) => void;
-  };
+  mongoose?: DbOptions;
 }
 
 export let emailOptions: StartOptions["email"] = {
@@ -51,18 +45,17 @@ export let emailOptions: StartOptions["email"] = {
   from: "email@example.com",
 };
 
-export let mongooseOptions: StartOptions["mongoose"] = {
-  pre: undefined,
-  post: undefined,
+export let mongooseOptions: DbOptions | undefined = {
+  prod_db_name: undefined,
+  test_db_name: undefined,
+  user_schema: undefined,
 };
 
 export function start(app: Express, options: StartOptions) {
   emailOptions = options.email;
   mongooseOptions = options.mongoose;
-  connectDB({
-    prodDbName: options?.prodDbName,
-    testDbName: options?.testDbName,
-  });
+
+  connectDB(mongooseOptions);
 
   console.log(process.env.ENV);
 
