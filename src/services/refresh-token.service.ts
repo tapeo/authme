@@ -1,4 +1,4 @@
-import { User } from "@/model/user.model";
+import { userModel } from "@/model/user.model";
 
 export class RefreshTokenService {
   private static expireAfter: number = 30 * 24 * 60 * 60 * 1000;
@@ -10,13 +10,13 @@ export class RefreshTokenService {
       encrypted_jwt: refreshToken,
     };
 
-    await User.findByIdAndUpdate(
+    await userModel.findByIdAndUpdate(
       userId,
       { $push: { refresh_tokens: data } },
       { new: true, useFindAndModify: false }
     );
 
-    const user = await User.findById(userId);
+    const user = await userModel.findById(userId);
     if (!user) {
       throw new Error("User not found");
     }
@@ -26,7 +26,7 @@ export class RefreshTokenService {
     );
 
     if (validTokens.length < user.refresh_tokens.length) {
-      await User.findByIdAndUpdate(
+      await userModel.findByIdAndUpdate(
         userId,
         { $set: { refresh_tokens: validTokens } },
         { new: true, useFindAndModify: false }
@@ -37,7 +37,7 @@ export class RefreshTokenService {
   };
 
   public static getByUserId = async (userId: string) => {
-    const user = await User.findById(userId);
+    const user = await userModel.findById(userId);
 
     if (!user) {
       throw new Error("User not found");
@@ -50,7 +50,7 @@ export class RefreshTokenService {
     userId: string,
     encryptedRefreshToken: string
   ) => {
-    const user = await User.findByIdAndUpdate(
+    const user = await userModel.findByIdAndUpdate(
       userId,
       { $pull: { refresh_tokens: { encrypted_jwt: encryptedRefreshToken } } },
       { new: true, useFindAndModify: false }

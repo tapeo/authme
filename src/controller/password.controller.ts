@@ -1,6 +1,6 @@
 import { Email } from "@/extensions/email.extension";
 import { emailOptions } from "@/index";
-import { User } from "@/model/user.model";
+import { userModel } from "@/model/user.model";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import { Request, Response } from "express";
@@ -11,7 +11,7 @@ export class PasswordController {
 
     const sanitizedEmail = email.trim().toLowerCase();
 
-    const user = await User.findOne({ email: sanitizedEmail });
+    const user = await userModel.findOne({ email: sanitizedEmail });
     if (!user) {
       return res
         .status(404)
@@ -60,7 +60,7 @@ export class PasswordController {
 
   public static tokenPasswordHandler = async (req: Request, res: Response) => {
     try {
-      const user = await User.findOne({
+      const user = await userModel.findOne({
         reset_password_token: req.params.token,
         reset_password_expires: { $gt: Date.now() },
       });
@@ -84,7 +84,7 @@ export class PasswordController {
     try {
       const { token } = req.body;
 
-      const user = await User.findOne({
+      const user = await userModel.findOne({
         reset_password_token: token,
         reset_password_expires: { $gt: Date.now() },
       });

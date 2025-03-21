@@ -1,4 +1,4 @@
-import { User } from "@/model/user.model";
+import { User, userModel } from "@/model/user.model";
 
 export class UserService {
   public static get = async ({
@@ -21,7 +21,7 @@ export class UserService {
       ];
     }
 
-    const users = await User.find(query);
+    const users = await userModel.find(query);
 
     return users;
   };
@@ -30,9 +30,9 @@ export class UserService {
     id: string,
     ignore: string[] = []
   ): Promise<User> => {
-    const user = await User.findById(id).select(
-      ignore.map((field) => `-${field}`).join(" ")
-    );
+    const user = await userModel
+      .findById(id)
+      .select(ignore.map((field) => `-${field}`).join(" "));
 
     if (!user) {
       throw new Error("User not found");
@@ -49,7 +49,7 @@ export class UserService {
 
       const emailSanitized = email.trim();
 
-      const user = await User.findOne({ email: emailSanitized });
+      const user = await userModel.findOne({ email: emailSanitized });
 
       if (!user) {
         throw new Error("User not found");
@@ -67,7 +67,7 @@ export class UserService {
     passwordEncrypted: string,
     isAnonymous: boolean = false
   ): Promise<User> => {
-    const user = await User.create({
+    const user = await userModel.create({
       email,
       password: passwordEncrypted,
       is_anonymous: isAnonymous,
@@ -81,7 +81,7 @@ export class UserService {
   };
 
   public static patch = async (idUser: string, data: any): Promise<User> => {
-    const user = await User.findByIdAndUpdate(idUser, data, { new: true });
+    const user = await userModel.findByIdAndUpdate(idUser, data, { new: true });
 
     if (!user) {
       throw new Error("User not found");
