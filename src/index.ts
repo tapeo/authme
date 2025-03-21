@@ -19,6 +19,7 @@ import { PasswordController } from "@/controller/password.controller";
 import { RefreshTokenController } from "@/controller/refresh-token.controller";
 import { SignupController } from "@/controller/signup.controller";
 import jwtDecodeMiddleware from "@/middleware/jwt-decode";
+import { Document } from "mongoose";
 
 export * from "./extensions";
 export * from "./libs";
@@ -40,8 +41,8 @@ interface StartOptions {
     from: string;
   };
   mongoose?: {
-    pre?: (doc: any, next: any) => void;
-    post?: (doc: any, next: any) => void;
+    pre?: (doc: Document) => void;
+    post?: (doc: Document) => void;
   };
 }
 

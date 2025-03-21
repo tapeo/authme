@@ -87,14 +87,14 @@ UserSchema.index({ email: 1 }, { unique: true });
 
 UserSchema.pre("save", async function (next) {
   if (mongooseOptions?.pre) {
-    mongooseOptions.pre(this, next);
+    mongooseOptions.pre(this);
   }
   next();
 });
 
-UserSchema.post("save", async function (doc, next) {
+UserSchema.post("save", async function (doc) {
   if (mongooseOptions?.post) {
-    mongooseOptions.post(doc, next);
+    mongooseOptions.post(doc);
   }
 });
 
