@@ -41,7 +41,7 @@ interface StartOptions {
     from: string;
   };
   mongoose?: {
-    pre?: (doc: Document) => void;
+    pre?: (doc: Document, isNew: boolean) => void;
     post?: (doc: Document) => void;
   };
 }

@@ -87,7 +87,7 @@ UserSchema.index({ email: 1 }, { unique: true });
 
 UserSchema.pre("save", async function (next) {
   if (mongooseOptions?.pre) {
-    mongooseOptions.pre(this);
+    mongooseOptions.pre(this, this.isNew);
   }
   next();
 });
