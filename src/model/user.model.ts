@@ -1,3 +1,4 @@
+import { mongooseOptions } from "@/index";
 import { model, Schema } from "mongoose";
 
 export interface RefreshToken {
@@ -83,5 +84,18 @@ export const UserSchema = new Schema<User>({
 });
 
 UserSchema.index({ email: 1 }, { unique: true });
+
+UserSchema.pre("save", async function (next) {
+  if (mongooseOptions?.pre) {
+    mongooseOptions.pre(this, next);
+  }
+  next();
+});
+
+UserSchema.post("save", async function (doc, next) {
+  if (mongooseOptions?.post) {
+    mongooseOptions.post(doc, next);
+  }
+});
 
 export const userModel = model("User", UserSchema);

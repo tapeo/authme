@@ -39,6 +39,10 @@ interface StartOptions {
     name: string;
     from: string;
   };
+  mongoose?: {
+    pre?: (doc: any, next: any) => void;
+    post?: (doc: any, next: any) => void;
+  };
 }
 
 export let emailOptions: StartOptions["email"] = {
@@ -46,9 +50,14 @@ export let emailOptions: StartOptions["email"] = {
   from: "email@example.com",
 };
 
+export let mongooseOptions: StartOptions["mongoose"] = {
+  pre: undefined,
+  post: undefined,
+};
+
 export function start(app: Express, options: StartOptions) {
   emailOptions = options.email;
-
+  mongooseOptions = options.mongoose;
   connectDB({
     prodDbName: options?.prodDbName,
     testDbName: options?.testDbName,
