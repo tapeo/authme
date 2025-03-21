@@ -115,7 +115,13 @@ export class GoogleController {
         return;
       }
 
-      let user = await UserService.getUserByEmail(email);
+      let user;
+
+      try {
+        user = await UserService.getUserByEmail(email);
+      } catch (error) {
+        console.error("User not found, creating new user", error);
+      }
 
       if (!user) {
         const randomPassword = crypto.randomBytes(16).toString("hex");
