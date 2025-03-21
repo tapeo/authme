@@ -1,15 +1,15 @@
-import { Email } from "@/extensions/email.extension";
-import { Telegram } from "@/extensions/telegram.extension";
-import { emailOptions } from "@/index";
-import { setCookies } from "@/libs/cookie";
-import { encrypt } from "@/libs/crypto";
-import { generateAccessToken, generateRefreshToken } from "@/libs/jwt";
-import otpModel, { OtpPurpose } from "@/model/otp.model";
-import { RefreshTokenService } from "@/services/refresh-token.service";
-import { UserService } from "@/services/user.service";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import { Request, Response } from "express";
+import { Email } from "../extensions/email.extension";
+import { Telegram } from "../extensions/telegram.extension";
+import { emailOptions } from "../index";
+import { setCookies } from "../libs/cookie";
+import { encrypt } from "../libs/crypto";
+import { generateAccessToken, generateRefreshToken } from "../libs/jwt";
+import otpModel, { OtpPurpose } from "../model/otp.model";
+import { RefreshTokenService } from "../services/refresh-token.service";
+import { UserService } from "../services/user.service";
 
 export class SignupController {
   private static expiresAt = 10 * 60 * 1000;

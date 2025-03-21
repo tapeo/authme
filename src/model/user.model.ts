@@ -1,5 +1,5 @@
-import { mongooseOptions } from "@/index";
 import { model, Schema } from "mongoose";
+import { mongooseOptions } from "../index";
 
 export interface RefreshToken {
   expires_at: Date;

@@ -1,11 +1,11 @@
-import { decrypt, encrypt } from "@/libs/crypto";
+import { Request, Response } from "express";
+import { decrypt, encrypt } from "../libs/crypto";
 import {
   generateAccessToken,
   generateRefreshToken,
   verifyRefreshToken,
-} from "@/libs/jwt";
-import { RefreshTokenService } from "@/services/refresh-token.service";
-import { Request, Response } from "express";
+} from "../libs/jwt";
+import { RefreshTokenService } from "../services/refresh-token.service";
 
 export class RefreshTokenController {
   public static refreshTokenHandler = async (req: Request, res: Response) => {

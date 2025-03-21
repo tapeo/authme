@@ -3,7 +3,6 @@ import { dirname } from "path";
 
 config();
 
-import connectDB, { DbOptions } from "@/libs/mongo";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express, { Express } from "express";
@@ -11,14 +10,15 @@ import fs from "fs";
 import https from "https";
 import path from "path";
 import { extendResponse } from "./extensions/response";
+import connectDB, { DbOptions } from "./libs/mongo";
 
-import { GoogleController } from "@/controller/google.controller";
-import { LoginController } from "@/controller/login.controller";
-import { UserController } from "@/controller/me.controller";
-import { PasswordController } from "@/controller/password.controller";
-import { RefreshTokenController } from "@/controller/refresh-token.controller";
-import { SignupController } from "@/controller/signup.controller";
-import jwtDecodeMiddleware from "@/middleware/jwt-decode";
+import { GoogleController } from "./controller/google.controller";
+import { LoginController } from "./controller/login.controller";
+import { UserController } from "./controller/me.controller";
+import { PasswordController } from "./controller/password.controller";
+import { RefreshTokenController } from "./controller/refresh-token.controller";
+import { SignupController } from "./controller/signup.controller";
+import jwtDecodeMiddleware from "./middleware/jwt-decode";
 
 export * from "./extensions";
 export * from "./libs";

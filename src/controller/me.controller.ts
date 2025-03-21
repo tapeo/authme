@@ -1,6 +1,6 @@
-import { Telegram } from "@/extensions/telegram.extension";
-import { UserService } from "@/services/user.service";
 import { Request, Response } from "express";
+import { Telegram } from "../extensions/telegram.extension";
+import { UserService } from "../services/user.service";
 
 export class UserController {
   public static meHandler = async (req: Request, res: Response) => {

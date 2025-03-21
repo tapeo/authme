@@ -1,4 +1,4 @@
-import { User, userModel } from "@/model/user.model";
+import { User, userModel } from "../model/user.model";
 
 export class UserService {
   public static get = async ({

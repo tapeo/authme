@@ -1,13 +1,13 @@
-import { Telegram } from "@/extensions/telegram.extension";
-import { setCookies } from "@/libs/cookie";
-import { encrypt } from "@/libs/crypto";
-import { generateAccessToken, generateRefreshToken } from "@/libs/jwt";
-import { OAuthStateService } from "@/services/oauth-state.service";
-import { RefreshTokenService } from "@/services/refresh-token.service";
-import { UserService } from "@/services/user.service";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import { Request, Response } from "express";
+import { Telegram } from "../extensions/telegram.extension";
+import { setCookies } from "../libs/cookie";
+import { encrypt } from "../libs/crypto";
+import { generateAccessToken, generateRefreshToken } from "../libs/jwt";
+import { OAuthStateService } from "../services/oauth-state.service";
+import { RefreshTokenService } from "../services/refresh-token.service";
+import { UserService } from "../services/user.service";
 
 export class GoogleController {
   private static googleClientId: string = process.env.GOOGLE_CLIENT_ID!;

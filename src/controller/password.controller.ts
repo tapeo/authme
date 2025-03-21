@@ -1,9 +1,9 @@
-import { Email } from "@/extensions/email.extension";
-import { emailOptions } from "@/index";
-import { userModel } from "@/model/user.model";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import { Request, Response } from "express";
+import { Email } from "../extensions/email.extension";
+import { emailOptions } from "../index";
+import { userModel } from "../model/user.model";
 
 export class PasswordController {
   public static forgotPasswordHandler = async (req: Request, res: Response) => {

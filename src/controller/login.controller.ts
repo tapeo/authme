@@ -1,10 +1,10 @@
-import { clearCookies, setCookies } from "@/libs/cookie";
-import { encrypt } from "@/libs/crypto";
-import { generateAccessToken, generateRefreshToken } from "@/libs/jwt";
-import { RefreshTokenService } from "@/services/refresh-token.service";
-import { UserService } from "@/services/user.service";
 import bcrypt from "bcrypt";
 import { Request, Response } from "express";
+import { clearCookies, setCookies } from "../libs/cookie";
+import { encrypt } from "../libs/crypto";
+import { generateAccessToken, generateRefreshToken } from "../libs/jwt";
+import { RefreshTokenService } from "../services/refresh-token.service";
+import { UserService } from "../services/user.service";
 
 export class LoginController {
   public static login = async (req: Request, res: Response) => {

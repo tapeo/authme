@@ -1,4 +1,4 @@
-import OAuthState from "@/model/oauth-state.model";
+import OAuthState from "../model/oauth-state.model";
 
 export class OAuthStateService {
   private static expireAfter: number = 10 * 60 * 1000;

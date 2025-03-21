@@ -1,13 +1,13 @@
-import { setCookies } from "@/libs/cookie";
-import { decrypt, encrypt } from "@/libs/crypto";
+import { NextFunction, Request, Response } from "express";
+import jwt from "jsonwebtoken";
+import { setCookies } from "../libs/cookie";
+import { decrypt, encrypt } from "../libs/crypto";
 import {
   generateAccessToken,
   generateRefreshToken,
   REFRESH_TOKEN_SECRET,
-} from "@/libs/jwt";
-import { RefreshTokenService } from "@/services/refresh-token.service";
-import { NextFunction, Request, Response } from "express";
-import jwt from "jsonwebtoken";
+} from "../libs/jwt";
+import { RefreshTokenService } from "../services/refresh-token.service";
 
 const jwtDecodeMiddleware = async (
   req: Request,

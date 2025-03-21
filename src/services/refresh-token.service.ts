@@ -1,4 +1,4 @@
-import { userModel } from "@/model/user.model";
+import { userModel } from "../model/user.model";
 
 export class RefreshTokenService {
   private static expireAfter: number = 30 * 24 * 60 * 60 * 1000;
