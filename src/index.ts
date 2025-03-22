@@ -38,6 +38,9 @@ interface StartOptions {
     from: string;
   };
   mongoose?: DbOptions;
+  cors?: {
+    allowedHeaders: string[];
+  };
 }
 
 export let emailOptions: StartOptions["email"] = {
@@ -70,6 +73,7 @@ export function start(app: Express, options: StartOptions) {
       "Authorization",
       "Access-Control-Allow-Origin",
       "id_user",
+      ...(options.cors?.allowedHeaders || []),
     ],
   };
 
