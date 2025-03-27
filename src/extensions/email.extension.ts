@@ -7,6 +7,23 @@ type Props = {
   html: string;
 };
 
+const plunkSmtpConfig = {
+  host: "smtp.useplunk.com",
+  port: 465,
+  auth: {
+    user: "plunk",
+    pass: process.env.PLUNK_API_KEY,
+  },
+};
+
+const mailersendSmtpConfig = {
+  host: "smtp.mailersend.net",
+  port: 587,
+  auth: {
+    user: "MS_JgR7jg@ttclubmanager.com",
+    pass: process.env.MAILERSEND_API_KEY,
+  },
+};
 export class Email {
   public static send = async ({
     from_email,
@@ -14,12 +31,16 @@ export class Email {
     subject,
     html,
   }: Props) => {
+    const config = plunkSmtpConfig.auth.pass
+      ? plunkSmtpConfig
+      : mailersendSmtpConfig;
+
     const transporter = nodemailer.createTransport({
-      host: "smtp.useplunk.com",
-      port: 465,
+      host: config.host,
+      port: config.port,
       auth: {
-        user: "plunk",
-        pass: process.env.PLUNK_API_KEY,
+        user: config.auth.user,
+        pass: config.auth.pass,
       },
     });
 
