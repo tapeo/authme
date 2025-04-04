@@ -33,7 +33,13 @@ const jwtDecodeMiddleware = async (
     const idUser = decodedAccess["x-user-id"];
     const email = decodedAccess["x-email"];
     if (!idUser) {
-      res.status(404).json({ message: "Unauthorized, user not found" });
+      res.status(404).jsonTyped({
+        status: "error",
+        message: "Unauthorized, user not found",
+        data: {
+          logout: true,
+        },
+      });
       return;
     }
 
@@ -46,8 +52,12 @@ const jwtDecodeMiddleware = async (
   const refreshToken = req.cookies.refresh_token;
 
   if (!refreshToken) {
-    res.status(401).json({
+    res.status(401).jsonTyped({
+      status: "error",
       message: "Unauthorized, refresh token not found",
+      data: {
+        logout: true,
+      },
     });
     return;
   }
@@ -57,7 +67,13 @@ const jwtDecodeMiddleware = async (
   try {
     decoded = jwt.verify(refreshToken, REFRESH_TOKEN_SECRET) as jwt.JwtPayload;
   } catch {
-    res.status(401).json({ message: "Unauthorized, jwt malformed" });
+    res.status(401).jsonTyped({
+      status: "error",
+      message: "Unauthorized, jwt malformed",
+      data: {
+        logout: true,
+      },
+    });
     return;
   }
 
@@ -78,7 +94,13 @@ const jwtDecodeMiddleware = async (
   }
 
   if (!tokenFoundEncrypted) {
-    res.status(401).json({ message: "Unauthorized, token not found" });
+    res.status(401).jsonTyped({
+      status: "error",
+      message: "Unauthorized, token not found",
+      data: {
+        logout: true,
+      },
+    });
     return;
   }
 
