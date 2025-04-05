@@ -161,49 +161,34 @@ export class SignupController {
     req: Request,
     res: Response
   ): Promise<void> => {
-    try {
-      const randomEmail = `anon_${crypto
-        .randomBytes(8)
-        .toString("hex")}@anonymous.local`;
-      const randomPassword = crypto.randomBytes(16).toString("hex");
-      const passwordEncrypted = await bcrypt.hash(randomPassword, 10);
+    const randomEmail = `anon_${crypto
+      .randomBytes(8)
+      .toString("hex")}@anonymous.local`;
+    const randomPassword = crypto.randomBytes(16).toString("hex");
+    const passwordEncrypted = await bcrypt.hash(randomPassword, 10);
 
-      const user = await UserService.post(randomEmail, passwordEncrypted, true);
+    const user = await UserService.post(randomEmail, passwordEncrypted, true);
 
-      const accessToken = generateAccessToken(user._id.toString(), randomEmail);
-      const refreshToken = generateRefreshToken(
-        user._id.toString(),
-        randomEmail
-      );
-      const encryptedRefreshToken = encrypt(refreshToken);
+    const accessToken = generateAccessToken(user._id.toString(), randomEmail);
+    const refreshToken = generateRefreshToken(user._id.toString(), randomEmail);
+    const encryptedRefreshToken = encrypt(refreshToken);
 
-      await RefreshTokenService.post(
-        user._id.toString(),
-        encryptedRefreshToken
-      );
-      setCookies(accessToken, refreshToken, res);
+    await RefreshTokenService.post(user._id.toString(), encryptedRefreshToken);
+    setCookies(accessToken, refreshToken, res);
 
-      await Telegram.send({
-        text: `New anonymous user registered on ${req.headers.host}`,
-      });
+    await Telegram.send({
+      text: `New anonymous user registered on ${req.headers.host}`,
+    });
 
-      return res.status(200).jsonTyped({
-        status: "success",
-        message: "Anonymous registration successful",
-        data: {
-          id: user._id.toString(),
-          access_token: accessToken,
-          refresh_token: refreshToken,
-        },
-      });
-    } catch (error) {
-      console.error("Anonymous signup error:", error);
-      return res.status(500).jsonTyped({
-        status: "error",
-        message: (error as Error).message,
-        data: null,
-      });
-    }
+    return res.status(200).jsonTyped({
+      status: "success",
+      message: "Anonymous registration successful",
+      data: {
+        id: user._id.toString(),
+        access_token: accessToken,
+        refresh_token: refreshToken,
+      },
+    });
   };
 
   public static mergeAnonymousAccountHandler = async (
@@ -319,32 +304,23 @@ export class SignupController {
     const passwordEncrypted = await bcrypt.hash(password, 10);
     const sanitizedEmail = email.trim().toLowerCase();
 
-    try {
-      const user = await UserService.post(
-        sanitizedEmail,
-        passwordEncrypted,
-        isAnonymous
-      );
+    const user = await UserService.post(
+      sanitizedEmail,
+      passwordEncrypted,
+      isAnonymous
+    );
 
-      await Telegram.send({
-        text: `New user registered: ${sanitizedEmail} on ${req.headers.host}`,
-      });
+    await Telegram.send({
+      text: `New user registered: ${sanitizedEmail} on ${req.headers.host}`,
+    });
 
-      return res.status(200).jsonTyped({
-        status: "success",
-        message: "Registration successful, now you can login",
-        data: {
-          id: user._id.toString(),
-        },
-      });
-    } catch (error) {
-      console.error("Signup error:", error);
-      return res.status(500).jsonTyped({
-        status: "error",
-        message: (error as Error).message,
-        data: null,
-      });
-    }
+    return res.status(200).jsonTyped({
+      status: "success",
+      message: "Registration successful, now you can login",
+      data: {
+        id: user._id.toString(),
+      },
+    });
   };
 
   private static generateOTP = (length: number = 6): string => {
