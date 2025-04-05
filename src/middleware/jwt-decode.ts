@@ -1,13 +1,15 @@
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import { setCookies } from "../libs/cookie";
-import { decrypt, encrypt } from "../libs/crypto";
-import {
-  generateAccessToken,
-  generateRefreshToken,
-  REFRESH_TOKEN_SECRET,
-} from "../libs/jwt";
-import { RefreshTokenService } from "../services/refresh-token.service";
+import { clearCookies } from "../libs";
+import { ACCESS_TOKEN_SECRET } from "../libs/jwt";
+
+enum JwtError {
+  TOKEN_EXPIRED = "token_expired",
+  TOKEN_INVALID = "token_invalid",
+  TOKEN_NOT_FOUND = "token_not_found",
+  USER_NOT_FOUND = "user_not_found",
+  MALFORMED_TOKEN = "malformed_token",
+}
 
 const jwtDecodeMiddleware = async (
   req: Request,
@@ -21,102 +23,90 @@ const jwtDecodeMiddleware = async (
   const accessToken =
     req.headers.authorization?.split(" ")[1] ?? req.cookies.access_token;
 
-  const decodedAccess = jwt.decode(accessToken) as jwt.JwtPayload;
-  const currentTimestamp = Math.floor(Date.now() / 1000);
+  if (!accessToken) {
+    console.log("[JWT] Error: Access token not found");
 
-  // If access token is still valid (with 5 seconds buffer)
-  if (
-    decodedAccess &&
-    decodedAccess.exp &&
-    decodedAccess.exp > currentTimestamp + 5
-  ) {
-    const idUser = decodedAccess["x-user-id"];
-    const email = decodedAccess["x-email"];
+    clearCookies(res);
+
+    return res.status(401).jsonTyped({
+      status: "error",
+      message: "Unauthorized, access token not found",
+      data: {
+        error: JwtError.TOKEN_NOT_FOUND,
+      },
+    });
+  }
+
+  try {
+    const decodedAccess: jwt.Jwt = jwt.verify(
+      accessToken,
+      ACCESS_TOKEN_SECRET,
+      {
+        complete: true,
+      }
+    );
+
+    const payload = decodedAccess.payload as jwt.JwtPayload;
+    const idUser = payload["x-user-id"];
+    const email = payload["x-email"];
+
     if (!idUser) {
-      res.status(404).jsonTyped({
+      console.log("[JWT] Error: User ID not found in token");
+
+      clearCookies(res);
+
+      return res.status(404).jsonTyped({
         status: "error",
         message: "Unauthorized, user not found",
         data: {
-          logout: true,
+          error: JwtError.USER_NOT_FOUND,
         },
       });
-      return;
     }
 
     req.headers.id_user = idUser;
     req.headers.email = email;
 
-    return next();
-  }
+    next();
+  } catch (error) {
+    if (error instanceof jwt.TokenExpiredError) {
+      console.log("[JWT] Token expired");
 
-  const refreshToken = req.cookies.refresh_token;
+      clearCookies(res);
 
-  if (!refreshToken) {
-    res.status(401).jsonTyped({
-      status: "error",
-      message: "Unauthorized, refresh token not found",
-      data: {
-        logout: true,
-      },
-    });
-    return;
-  }
+      return res.status(401).jsonTyped({
+        status: "error",
+        message: "Unauthorized, access token expired",
+        data: {
+          error: JwtError.TOKEN_EXPIRED,
+        },
+      });
+    } else if (error instanceof jwt.JsonWebTokenError) {
+      console.log("[JWT] Invalid token");
 
-  let decoded: jwt.JwtPayload;
+      clearCookies(res);
 
-  try {
-    decoded = jwt.verify(refreshToken, REFRESH_TOKEN_SECRET) as jwt.JwtPayload;
-  } catch {
-    res.status(401).jsonTyped({
-      status: "error",
-      message: "Unauthorized, jwt malformed",
-      data: {
-        logout: true,
-      },
-    });
-    return;
-  }
+      return res.status(401).jsonTyped({
+        status: "error",
+        message: "Unauthorized, invalid access token",
+        data: {
+          error: JwtError.TOKEN_INVALID,
+        },
+      });
+    } else {
+      console.log("[JWT] Malformed token");
 
-  const idUser = decoded["x-user-id"];
-  const email = decoded["x-email"];
+      clearCookies(res);
 
-  const refreshTokenList = await RefreshTokenService.getByUserId(idUser);
-
-  let tokenFoundEncrypted: string | null = null;
-
-  for (const token of refreshTokenList) {
-    const decryptedRefreshToken = decrypt(token.encrypted_jwt);
-
-    if (decryptedRefreshToken === refreshToken) {
-      tokenFoundEncrypted = token.encrypted_jwt;
-      break;
+      return res.status(401).jsonTyped({
+        status: "error",
+        message: "Unauthorized, malformed access token",
+        data: {
+          error: JwtError.MALFORMED_TOKEN,
+        },
+      });
     }
   }
-
-  if (!tokenFoundEncrypted) {
-    res.status(401).jsonTyped({
-      status: "error",
-      message: "Unauthorized, token not found",
-      data: {
-        logout: true,
-      },
-    });
-    return;
-  }
-
-  const newAccessToken = generateAccessToken(idUser, email);
-  const newRefreshToken = generateRefreshToken(idUser, email);
-  const encryptedRefreshToken = encrypt(newRefreshToken);
-
-  await RefreshTokenService.delete(idUser, tokenFoundEncrypted);
-  await RefreshTokenService.post(idUser, encryptedRefreshToken);
-
-  setCookies(newAccessToken, newRefreshToken, res);
-
-  req.headers.id_user = idUser;
-  req.headers.email = email;
-
-  return next();
 };
 
 export default jwtDecodeMiddleware;
