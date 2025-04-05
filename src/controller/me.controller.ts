@@ -31,33 +31,25 @@ export class UserController {
   public static deleteMeHandler = async (req: Request, res: Response) => {
     const idUser = req.headers.id_user as string;
 
-    try {
-      const user = await UserService.getById(idUser);
+    const user = await UserService.getById(idUser);
 
-      if (!user) {
-        res.status(404).jsonTyped({
-          status: "error",
-          message: "User not found",
-          data: null,
-        });
-        return;
-      }
-
-      await Telegram.send({
-        text: `User account deletion request: ${idUser} ${user.email} on ${req.headers.host}`,
-      });
-
-      res.status(200).jsonTyped({
-        status: "success",
-        message: "User account deletion requested",
-        data: null,
-      });
-    } catch {
-      res.status(500).jsonTyped({
+    if (!user) {
+      res.status(404).jsonTyped({
         status: "error",
-        message: "Failed to delete user",
+        message: "User not found",
         data: null,
       });
+      return;
     }
+
+    await Telegram.send({
+      text: `User account deletion request: ${idUser} ${user.email} on ${req.headers.host}`,
+    });
+
+    res.status(200).jsonTyped({
+      status: "success",
+      message: "User account deletion requested",
+      data: null,
+    });
   };
 }

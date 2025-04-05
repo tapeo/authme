@@ -210,111 +210,103 @@ export class SignupController {
     req: Request,
     res: Response
   ): Promise<void> => {
-    try {
-      const { email, password } = req.body;
-      const idUser = req.headers.id_user as string;
-      const jwtEmail = req.headers.email as string;
+    const { email, password } = req.body;
 
-      if (!idUser || !jwtEmail) {
-        return res.status(401).jsonTyped({
-          status: "error",
-          message: "Unauthorized",
-          data: null,
-        });
-      }
+    const idUser = req.headers.id_user as string;
+    const jwtEmail = req.headers.email as string;
 
-      if (!email || !password) {
-        return res.status(400).jsonTyped({
-          status: "error",
-          message: "Email and password are required",
-          data: null,
-        });
-      }
-
-      const sanitizedEmail = email.trim().toLowerCase();
-
-      const isValidEmail = (email: string) => {
-        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-      };
-
-      if (!isValidEmail(sanitizedEmail)) {
-        return res.status(400).jsonTyped({
-          status: "error",
-          message: "Invalid email",
-          data: null,
-        });
-      }
-
-      const existingUser = await UserService.getUserByEmail(sanitizedEmail);
-      if (existingUser) {
-        return res.status(400).jsonTyped({
-          status: "error",
-          message: "Email already in use",
-          data: null,
-        });
-      }
-
-      const anonymousUser = await UserService.getById(idUser);
-      if (!anonymousUser) {
-        return res.status(404).jsonTyped({
-          status: "error",
-          message: "User not found",
-          data: null,
-        });
-      }
-
-      if (!anonymousUser.is_anonymous) {
-        return res.status(400).jsonTyped({
-          status: "error",
-          message: "Only anonymous accounts can be merged",
-          data: null,
-        });
-      }
-
-      if (anonymousUser.email !== jwtEmail) {
-        return res.status(401).jsonTyped({
-          status: "error",
-          message: "You can only merge your own anonymous account",
-          data: null,
-        });
-      }
-
-      const passwordEncrypted = await bcrypt.hash(password, 10);
-
-      await UserService.patch(idUser, {
-        email: sanitizedEmail,
-        password: passwordEncrypted,
-        is_anonymous: false,
-      });
-
-      const accessToken = generateAccessToken(idUser, sanitizedEmail);
-      const refreshToken = generateRefreshToken(idUser, sanitizedEmail);
-      const encryptedRefreshToken = encrypt(refreshToken);
-
-      await RefreshTokenService.post(idUser, encryptedRefreshToken);
-      setCookies(accessToken, refreshToken, res);
-
-      await Telegram.send({
-        text: `Anonymous user merged to regular account: ${sanitizedEmail} on ${req.headers.host}`,
-      });
-
-      return res.status(200).jsonTyped({
-        status: "success",
-        message: "Account merged successfully",
-        data: {
-          id: idUser,
-          access_token: accessToken,
-          refresh_token: refreshToken,
-        },
-      });
-    } catch (error) {
-      console.error("Account merge error:", error);
-      return res.status(500).jsonTyped({
+    if (!idUser || !jwtEmail) {
+      return res.status(401).jsonTyped({
         status: "error",
-        message: (error as Error).message,
+        message: "Unauthorized",
         data: null,
       });
     }
+
+    if (!email || !password) {
+      return res.status(400).jsonTyped({
+        status: "error",
+        message: "Email and password are required",
+        data: null,
+      });
+    }
+
+    const sanitizedEmail = email.trim().toLowerCase();
+
+    const isValidEmail = (email: string) => {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    };
+
+    if (!isValidEmail(sanitizedEmail)) {
+      return res.status(400).jsonTyped({
+        status: "error",
+        message: "Invalid email",
+        data: null,
+      });
+    }
+
+    const existingUser = await UserService.getUserByEmail(sanitizedEmail);
+    if (existingUser) {
+      return res.status(400).jsonTyped({
+        status: "error",
+        message: "Email already in use",
+        data: null,
+      });
+    }
+
+    const anonymousUser = await UserService.getById(idUser);
+    if (!anonymousUser) {
+      return res.status(404).jsonTyped({
+        status: "error",
+        message: "User not found",
+        data: null,
+      });
+    }
+
+    if (!anonymousUser.is_anonymous) {
+      return res.status(400).jsonTyped({
+        status: "error",
+        message: "Only anonymous accounts can be merged",
+        data: null,
+      });
+    }
+
+    if (anonymousUser.email !== jwtEmail) {
+      return res.status(401).jsonTyped({
+        status: "error",
+        message: "You can only merge your own anonymous account",
+        data: null,
+      });
+    }
+
+    const passwordEncrypted = await bcrypt.hash(password, 10);
+
+    await UserService.patch(idUser, {
+      email: sanitizedEmail,
+      password: passwordEncrypted,
+      is_anonymous: false,
+    });
+
+    const accessToken = generateAccessToken(idUser, sanitizedEmail);
+    const refreshToken = generateRefreshToken(idUser, sanitizedEmail);
+    const encryptedRefreshToken = encrypt(refreshToken);
+
+    await RefreshTokenService.post(idUser, encryptedRefreshToken);
+    setCookies(accessToken, refreshToken, res);
+
+    await Telegram.send({
+      text: `Anonymous user merged to regular account: ${sanitizedEmail} on ${req.headers.host}`,
+    });
+
+    return res.status(200).jsonTyped({
+      status: "success",
+      message: "Account merged successfully",
+      data: {
+        id: idUser,
+        access_token: accessToken,
+        refresh_token: refreshToken,
+      },
+    });
   };
 
   private static createUserAccount = async (

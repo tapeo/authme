@@ -30,19 +30,17 @@ export class UserService {
   public static getById = async (
     id: string,
     ignore: string[] = []
-  ): Promise<User> => {
+  ): Promise<User | null> => {
     const user = await UserModel.findById(id).select(
       ignore.map((field) => `-${field}`).join(" ")
     );
 
-    if (!user) {
-      throw new Error("User not found");
-    }
-
     return user;
   };
 
-  public static getUserByEmail = async (email: string): Promise<User> => {
+  public static getUserByEmail = async (
+    email: string
+  ): Promise<User | null> => {
     try {
       if (!email) {
         throw new Error("Email is required");
@@ -51,10 +49,6 @@ export class UserService {
       const emailSanitized = email.trim();
 
       const user = await UserModel.findOne({ email: emailSanitized });
-
-      if (!user) {
-        throw new Error("User not found");
-      }
 
       return user;
     } catch (error) {
@@ -81,14 +75,13 @@ export class UserService {
     return user;
   };
 
-  public static patch = async (idUser: string, data: any): Promise<User> => {
+  public static patch = async (
+    idUser: string,
+    data: any
+  ): Promise<User | null> => {
     const user = await UserModel.findByIdAndUpdate(idUser, data, {
       new: true,
     });
-
-    if (!user) {
-      throw new Error("User not found");
-    }
 
     return user;
   };
