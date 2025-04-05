@@ -1,4 +1,4 @@
-import OAuthState from "../model/oauth-state.model";
+import { OAuthStateModel } from "..";
 
 export class OAuthStateService {
   private static expireAfter: number = 10 * 60 * 1000;
@@ -7,7 +7,7 @@ export class OAuthStateService {
     state: string,
     expiresIn: number = this.expireAfter
   ) => {
-    const oauthState = await OAuthState.create({
+    const oauthState = await OAuthStateModel.create({
       state,
       expires_at: new Date(Date.now() + expiresIn),
     });
@@ -16,7 +16,7 @@ export class OAuthStateService {
   };
 
   public static verifyAndConsume = async (state: string): Promise<boolean> => {
-    const oauthState = await OAuthState.findOne({
+    const oauthState = await OAuthStateModel.findOne({
       state,
       expires_at: { $gt: new Date() },
     });
@@ -25,7 +25,7 @@ export class OAuthStateService {
       return false;
     }
 
-    await OAuthState.deleteOne({ _id: oauthState._id });
+    await OAuthStateModel.deleteOne({ _id: oauthState._id });
 
     return true;
   };

@@ -3,11 +3,11 @@ import crypto from "crypto";
 import { Request, Response } from "express";
 import { Email } from "../extensions/email.extension";
 import { Telegram } from "../extensions/telegram.extension";
-import { emailOptions } from "../index";
+import { emailOptions, OtpModel } from "../index";
 import { setCookies } from "../libs/cookie";
 import { encrypt } from "../libs/crypto";
 import { generateAccessToken, generateRefreshToken } from "../libs/jwt";
-import otpModel, { OtpPurpose } from "../model/otp.model";
+import { OtpPurpose } from "../model/otp.model";
 import { RefreshTokenService } from "../services/refresh-token.service";
 import { UserService } from "../services/user.service";
 
@@ -30,7 +30,7 @@ export class SignupController {
       });
     }
 
-    await otpModel.deleteMany({
+    await OtpModel.deleteMany({
       email: sanitizedEmail,
       purpose: OtpPurpose.EMAIL_VERIFICATION,
       is_used: false,
@@ -40,7 +40,7 @@ export class SignupController {
 
     const expires_at = new Date(Date.now() + this.expiresAt);
 
-    await otpModel.create({
+    await OtpModel.create({
       email: sanitizedEmail,
       otp,
       purpose: OtpPurpose.EMAIL_VERIFICATION,
@@ -104,7 +104,7 @@ export class SignupController {
       });
     }
 
-    const otpDoc = await otpModel.findOne({
+    const otpDoc = await OtpModel.findOne({
       email: sanitizedEmail,
       otp,
       purpose: OtpPurpose.EMAIL_VERIFICATION,

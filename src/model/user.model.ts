@@ -1,4 +1,4 @@
-import { model, Schema } from "mongoose";
+import { Mongoose } from "mongoose";
 import { mongooseOptions } from "../index";
 
 export interface RefreshToken {
@@ -23,79 +23,85 @@ export interface User {
   is_anonymous?: boolean;
 }
 
-export const RefreshTokenSchema = new Schema<RefreshToken>({
-  expires_at: {
-    type: Date,
-    required: true,
-  },
-  encrypted_jwt: {
-    type: String,
-    required: true,
-  },
-});
+export function registerUserModel(mongooseInstance: Mongoose) {
+  const RefreshTokenSchema = new mongooseInstance!.Schema<RefreshToken>({
+    expires_at: {
+      type: Date,
+      required: true,
+    },
+    encrypted_jwt: {
+      type: String,
+      required: true,
+    },
+  });
 
-export const UserSchema = new Schema<User>({
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  password: {
-    type: String,
-    required: true,
-  },
-  created_at: {
-    type: Date,
-    default: Date.now,
-  },
-  updated_at: {
-    type: Date,
-    default: Date.now,
-  },
-  reset_password_token: {
-    type: String,
-  },
-  reset_password_expires: {
-    type: Date,
-  },
-  picture_url: {
-    type: String,
-    default: null,
-  },
-  id_stripe_customer: {
-    type: String,
-  },
-  id_stripe_connect: {
-    type: String,
-  },
-  refresh_tokens: [RefreshTokenSchema],
-  name: {
-    type: String,
-    default: null,
-  },
-  type: {
-    type: String,
-    default: null,
-  },
-  is_anonymous: {
-    type: Boolean,
-    default: false,
-  },
-});
+  const UserSchema = new mongooseInstance!.Schema<User>({
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    password: {
+      type: String,
+      required: true,
+    },
+    created_at: {
+      type: Date,
+      default: Date.now,
+    },
+    updated_at: {
+      type: Date,
+      default: Date.now,
+    },
+    reset_password_token: {
+      type: String,
+    },
+    reset_password_expires: {
+      type: Date,
+    },
+    picture_url: {
+      type: String,
+      default: null,
+    },
+    id_stripe_customer: {
+      type: String,
+    },
+    id_stripe_connect: {
+      type: String,
+    },
+    refresh_tokens: [RefreshTokenSchema],
+    name: {
+      type: String,
+      default: null,
+    },
+    type: {
+      type: String,
+      default: null,
+    },
+    is_anonymous: {
+      type: Boolean,
+      default: false,
+    },
+  });
 
-UserSchema.index({ email: 1 }, { unique: true });
+  UserSchema.index({ email: 1 }, { unique: true });
 
-UserSchema.pre("save", async function (next) {
-  if (mongooseOptions?.user_schema?.pre) {
-    mongooseOptions.user_schema.pre(this);
-  }
-  next();
-});
+  UserSchema.pre("save", async function (next) {
+    if (mongooseOptions?.user_schema?.pre) {
+      mongooseOptions.user_schema.pre(this as any);
+    }
+    next();
+  });
 
-UserSchema.post("save", async function (doc) {
-  if (mongooseOptions?.user_schema?.post) {
-    mongooseOptions.user_schema.post(doc);
-  }
-});
+  UserSchema.post("save", async function (doc) {
+    if (mongooseOptions?.user_schema?.post) {
+      mongooseOptions.user_schema.post(doc as any);
+    }
+  });
 
-export const userModel = model("User", UserSchema);
+  const UserModel = mongooseInstance!.model("User", UserSchema);
+
+  return UserModel;
+}
+
+export default registerUserModel;

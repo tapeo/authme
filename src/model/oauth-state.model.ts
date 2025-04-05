@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema } from "mongoose";
+import { Mongoose } from "mongoose";
 
 export interface IOAuthState extends Document {
   state: string;
@@ -7,28 +7,35 @@ export interface IOAuthState extends Document {
   updated_at: Date;
 }
 
-const oauthStateSchema = new Schema<IOAuthState>(
-  {
-    state: {
-      type: String,
-      required: true,
-      unique: true,
-      index: true,
+export function registerOAuthStateModel(mongooseInstance: Mongoose) {
+  const oauthStateSchema = new mongooseInstance!.Schema<IOAuthState>(
+    {
+      state: {
+        type: String,
+        required: true,
+        unique: true,
+        index: true,
+      },
+      expires_at: {
+        type: Date,
+        required: true,
+        index: { expires: 0 }, // Document will be automatically deleted when expires
+      },
     },
-    expires_at: {
-      type: Date,
-      required: true,
-      index: { expires: 0 }, // Document will be automatically deleted when expires
-    },
-  },
-  {
-    timestamps: {
-      createdAt: "created_at",
-      updatedAt: "updated_at",
-    },
-  }
-);
+    {
+      timestamps: {
+        createdAt: "created_at",
+        updatedAt: "updated_at",
+      },
+    }
+  );
 
-const OAuthState = mongoose.model<IOAuthState>("OAuthState", oauthStateSchema);
+  const OAuthStateModel = mongooseInstance!.model<IOAuthState>(
+    "OAuthState",
+    oauthStateSchema
+  );
 
-export default OAuthState;
+  return OAuthStateModel;
+}
+
+export default registerOAuthStateModel;

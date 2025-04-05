@@ -12,6 +12,7 @@ import path from "path";
 import { extendResponse } from "./extensions/response";
 import connectDB, { DbOptions } from "./libs/mongo";
 
+import { Model, Mongoose } from "mongoose";
 import { GoogleController } from "./controller/google.controller";
 import { LoginController } from "./controller/login.controller";
 import { UserController } from "./controller/me.controller";
@@ -19,11 +20,15 @@ import { PasswordController } from "./controller/password.controller";
 import { RefreshTokenController } from "./controller/refresh-token.controller";
 import { SignupController } from "./controller/signup.controller";
 import jwtDecodeMiddleware from "./middleware/jwt-decode";
+import registerOAuthStateModel, {
+  IOAuthState,
+} from "./model/oauth-state.model";
+import registerOtpModel, { IOtp } from "./model/otp.model";
+import registerUserModel, { User } from "./model/user.model";
 
 export * from "./extensions";
 export * from "./libs";
 export * from "./middleware";
-export * from "./model";
 export * from "./services";
 export * from "./types";
 
@@ -32,6 +37,7 @@ const publicPath = path.join(dirname(__filename), "public");
 interface StartOptions {
   host: string;
   port: number;
+  mongooseInstance: Mongoose;
   https?: boolean;
   email: {
     name: string;
@@ -54,11 +60,19 @@ export let mongooseOptions: DbOptions | undefined = {
   user_schema: undefined,
 };
 
+export let OAuthStateModel: Model<IOAuthState>;
+export let OtpModel: Model<IOtp>;
+export let UserModel: Model<User>;
+
 export function start(app: Express, options: StartOptions) {
   emailOptions = options.email;
   mongooseOptions = options.mongoose;
 
-  connectDB(mongooseOptions);
+  connectDB(options.mongooseInstance, mongooseOptions).then(() => {
+    OAuthStateModel = registerOAuthStateModel(options.mongooseInstance);
+    OtpModel = registerOtpModel(options.mongooseInstance);
+    UserModel = registerUserModel(options.mongooseInstance);
+  });
 
   console.log(process.env.ENV);
 

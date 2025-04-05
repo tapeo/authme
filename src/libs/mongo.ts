@@ -1,4 +1,4 @@
-import { connect, Document } from "mongoose";
+import { Mongoose } from "mongoose";
 
 export type DbOptions = {
   prod_db_name?: string;
@@ -9,7 +9,10 @@ export type DbOptions = {
   };
 };
 
-export const connectDB = async (options?: DbOptions) => {
+export const connectDB = async (
+  mongooseInstance: Mongoose,
+  options?: DbOptions
+) => {
   const mongoUri = process.env.MONGO_URI;
 
   if (!mongoUri) {
@@ -32,7 +35,7 @@ export const connectDB = async (options?: DbOptions) => {
   const uri = url.toString();
 
   try {
-    await connect(uri);
+    await mongooseInstance!.connect(uri);
     console.log("MongoDB Connected");
   } catch (err) {
     console.error(err);
