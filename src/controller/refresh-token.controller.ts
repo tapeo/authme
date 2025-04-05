@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { setCookies } from "../libs";
 import { decrypt, encrypt } from "../libs/crypto";
 import {
   generateAccessToken,
@@ -9,13 +10,13 @@ import { RefreshTokenService } from "../services/refresh-token.service";
 
 export class RefreshTokenController {
   public static refreshTokenHandler = async (req: Request, res: Response) => {
-    const refresh_token = req.body.refresh_token;
+    const refreshToken = req.body.refresh_token ?? req.cookies.refresh_token;
 
     let idUser;
     let email;
 
     try {
-      const decoded = verifyRefreshToken(refresh_token);
+      const decoded = verifyRefreshToken(refreshToken);
 
       idUser = (decoded as any)["x-user-id"];
       email = (decoded as any)["x-email"];
@@ -42,7 +43,7 @@ export class RefreshTokenController {
     for (const token of refreshTokenList) {
       const decryptedRefreshToken = decrypt(token.encrypted_jwt);
 
-      if (decryptedRefreshToken === refresh_token) {
+      if (decryptedRefreshToken === refreshToken) {
         tokenFoundEncrypted = token.encrypted_jwt;
         tokenFoundDecrypted = decryptedRefreshToken;
         break;
@@ -61,6 +62,8 @@ export class RefreshTokenController {
 
     await RefreshTokenService.delete(idUser, tokenFoundEncrypted);
     await RefreshTokenService.post(idUser, encryptedRefreshToken);
+
+    setCookies(generatedAccessToken, generatedRefreshToken, res);
 
     res.status(200).json({
       access_token: generatedAccessToken,

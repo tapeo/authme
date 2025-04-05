@@ -72,8 +72,6 @@ const jwtDecodeMiddleware = async (
     if (error instanceof jwt.TokenExpiredError) {
       console.log("[JWT] Token expired");
 
-      clearCookies(res);
-
       return res.status(401).jsonTyped({
         status: "error",
         message: "Unauthorized, access token expired",
