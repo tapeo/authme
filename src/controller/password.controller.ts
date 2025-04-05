@@ -80,46 +80,39 @@ export class PasswordController {
   };
 
   public static updatePasswordHandler = async (req: Request, res: Response) => {
-    try {
-      const { token } = req.body;
+    const { token } = req.body;
 
-      const user = await UserModel.findOne({
-        reset_password_token: token,
-        reset_password_expires: { $gt: Date.now() },
-      });
+    const user = await UserModel.findOne({
+      reset_password_token: token,
+      reset_password_expires: { $gt: Date.now() },
+    });
 
-      if (!user) {
-        return res.status(400).jsonTyped({
-          status: "error",
-          message: "Password reset token is invalid or has expired",
-        });
-      }
-
-      const { password, confirm_password } = req.body;
-
-      if (password !== confirm_password) {
-        return res.status(400).jsonTyped({
-          status: "error",
-          message: "Passwords do not match",
-        });
-      }
-
-      const passwordEncrypted = await bcrypt.hash(password, 10);
-
-      user.password = passwordEncrypted;
-      user.reset_password_token = null;
-      user.reset_password_expires = null;
-
-      await user.save();
-
-      res
-        .status(200)
-        .jsonTyped({ status: "success", message: "Password has been updated" });
-    } catch {
-      res.status(500).jsonTyped({
+    if (!user) {
+      return res.status(400).jsonTyped({
         status: "error",
-        message: "Error in updating password",
+        message: "Password reset token is invalid or has expired",
       });
     }
+
+    const { password, confirm_password } = req.body;
+
+    if (password !== confirm_password) {
+      return res.status(400).jsonTyped({
+        status: "error",
+        message: "Passwords do not match",
+      });
+    }
+
+    const passwordEncrypted = await bcrypt.hash(password, 10);
+
+    user.password = passwordEncrypted;
+    user.reset_password_token = null;
+    user.reset_password_expires = null;
+
+    await user.save();
+
+    res
+      .status(200)
+      .jsonTyped({ status: "success", message: "Password has been updated" });
   };
 }
