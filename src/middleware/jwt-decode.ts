@@ -26,14 +26,11 @@ const jwtDecodeMiddleware = async (
   if (!accessToken) {
     clearCookies(res);
 
-    return res
-      .status(401)
-      .header("X-Auth-Error", JwtError.TOKEN_NOT_FOUND)
-      .jsonTyped({
-        status: "error",
-        message: "Unauthorized, access token not found",
-        error: JwtError.TOKEN_NOT_FOUND,
-      });
+    return res.status(401).jsonTyped({
+      status: "error",
+      message: "Unauthorized, access token not found",
+      error: JwtError.TOKEN_NOT_FOUND,
+    });
   }
 
   try {
@@ -65,36 +62,27 @@ const jwtDecodeMiddleware = async (
     next();
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
-      return res
-        .status(401)
-        .header("X-Auth-Error", JwtError.TOKEN_EXPIRED)
-        .jsonTyped({
-          status: "error",
-          message: "Unauthorized, access token expired",
-          error: JwtError.TOKEN_EXPIRED,
-        });
+      return res.status(401).jsonTyped({
+        status: "error",
+        message: "Unauthorized, access token expired",
+        error: JwtError.TOKEN_EXPIRED,
+      });
     } else if (error instanceof jwt.JsonWebTokenError) {
       clearCookies(res);
 
-      return res
-        .status(401)
-        .header("X-Auth-Error", JwtError.TOKEN_INVALID)
-        .jsonTyped({
-          status: "error",
-          message: "Unauthorized, invalid access token",
-          error: JwtError.TOKEN_INVALID,
-        });
+      return res.status(401).jsonTyped({
+        status: "error",
+        message: "Unauthorized, invalid access token",
+        error: JwtError.TOKEN_INVALID,
+      });
     } else {
       clearCookies(res);
 
-      return res
-        .status(401)
-        .header("X-Auth-Error", JwtError.MALFORMED_TOKEN)
-        .jsonTyped({
-          status: "error",
-          message: "Unauthorized, malformed access token",
-          error: JwtError.MALFORMED_TOKEN,
-        });
+      return res.status(401).jsonTyped({
+        status: "error",
+        message: "Unauthorized, malformed access token",
+        error: JwtError.MALFORMED_TOKEN,
+      });
     }
   }
 };
