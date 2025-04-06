@@ -26,7 +26,6 @@ export class SignupController {
       return res.status(400).jsonTyped({
         status: "error",
         message: "Email is required",
-        data: null,
       });
     }
 
@@ -86,7 +85,6 @@ export class SignupController {
       return res.status(400).jsonTyped({
         status: "error",
         message: "Email, password and OTP are required",
-        data: null,
       });
     }
 
@@ -100,7 +98,6 @@ export class SignupController {
       return res.status(400).jsonTyped({
         status: "error",
         message: "Invalid email",
-        data: null,
       });
     }
 
@@ -116,7 +113,6 @@ export class SignupController {
       return res.status(400).jsonTyped({
         status: "error",
         message: "Invalid or expired OTP",
-        data: null,
       });
     }
 
@@ -136,7 +132,6 @@ export class SignupController {
       return res.status(400).jsonTyped({
         status: "error",
         message: "Email and password are required",
-        data: null,
       });
     }
 
@@ -150,7 +145,6 @@ export class SignupController {
       return res.status(400).jsonTyped({
         status: "error",
         message: "Invalid email",
-        data: null,
       });
     }
 
@@ -204,7 +198,6 @@ export class SignupController {
       return res.status(401).jsonTyped({
         status: "error",
         message: "Unauthorized",
-        data: null,
       });
     }
 
@@ -212,7 +205,6 @@ export class SignupController {
       return res.status(400).jsonTyped({
         status: "error",
         message: "Email and password are required",
-        data: null,
       });
     }
 
@@ -226,7 +218,6 @@ export class SignupController {
       return res.status(400).jsonTyped({
         status: "error",
         message: "Invalid email",
-        data: null,
       });
     }
 
@@ -235,7 +226,6 @@ export class SignupController {
       return res.status(400).jsonTyped({
         status: "error",
         message: "Email already in use",
-        data: null,
       });
     }
 
@@ -244,7 +234,6 @@ export class SignupController {
       return res.status(404).jsonTyped({
         status: "error",
         message: "User not found",
-        data: null,
       });
     }
 
@@ -252,7 +241,6 @@ export class SignupController {
       return res.status(400).jsonTyped({
         status: "error",
         message: "Only anonymous accounts can be merged",
-        data: null,
       });
     }
 
@@ -260,7 +248,6 @@ export class SignupController {
       return res.status(401).jsonTyped({
         status: "error",
         message: "You can only merge your own anonymous account",
-        data: null,
       });
     }
 

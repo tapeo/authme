@@ -17,7 +17,6 @@ export class UserController {
       res.status(404).jsonTyped({
         status: "error",
         message: "User not found",
-        data: null,
       });
       return;
     }
@@ -37,7 +36,6 @@ export class UserController {
       res.status(404).jsonTyped({
         status: "error",
         message: "User not found",
-        data: null,
       });
       return;
     }
@@ -49,7 +47,6 @@ export class UserController {
     res.status(200).jsonTyped({
       status: "success",
       message: "User account deletion requested",
-      data: null,
     });
   };
 }

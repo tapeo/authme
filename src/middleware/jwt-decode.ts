@@ -24,8 +24,6 @@ const jwtDecodeMiddleware = async (
     req.headers.authorization?.split(" ")[1] ?? req.cookies.access_token;
 
   if (!accessToken) {
-    console.log("[JWT] Error: Access token not found");
-
     clearCookies(res);
 
     return res
@@ -34,9 +32,7 @@ const jwtDecodeMiddleware = async (
       .jsonTyped({
         status: "error",
         message: "Unauthorized, access token not found",
-        data: {
-          error: JwtError.TOKEN_NOT_FOUND,
-        },
+        error: JwtError.TOKEN_NOT_FOUND,
       });
   }
 
@@ -54,16 +50,12 @@ const jwtDecodeMiddleware = async (
     const email = payload["x-email"];
 
     if (!idUser) {
-      console.log("[JWT] Error: User ID not found in token");
-
       clearCookies(res);
 
       return res.status(404).jsonTyped({
         status: "error",
         message: "Unauthorized, user not found",
-        data: {
-          error: JwtError.USER_NOT_FOUND,
-        },
+        error: JwtError.USER_NOT_FOUND,
       });
     }
 
@@ -73,21 +65,15 @@ const jwtDecodeMiddleware = async (
     next();
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
-      console.log("[JWT] Token expired");
-
       return res
         .status(401)
         .header("X-Auth-Error", JwtError.TOKEN_EXPIRED)
         .jsonTyped({
           status: "error",
           message: "Unauthorized, access token expired",
-          data: {
-            error: JwtError.TOKEN_EXPIRED,
-          },
+          error: JwtError.TOKEN_EXPIRED,
         });
     } else if (error instanceof jwt.JsonWebTokenError) {
-      console.log("[JWT] Invalid token");
-
       clearCookies(res);
 
       return res
@@ -96,13 +82,9 @@ const jwtDecodeMiddleware = async (
         .jsonTyped({
           status: "error",
           message: "Unauthorized, invalid access token",
-          data: {
-            error: JwtError.TOKEN_INVALID,
-          },
+          error: JwtError.TOKEN_INVALID,
         });
     } else {
-      console.log("[JWT] Malformed token");
-
       clearCookies(res);
 
       return res
@@ -111,9 +93,7 @@ const jwtDecodeMiddleware = async (
         .jsonTyped({
           status: "error",
           message: "Unauthorized, malformed access token",
-          data: {
-            error: JwtError.MALFORMED_TOKEN,
-          },
+          error: JwtError.MALFORMED_TOKEN,
         });
     }
   }
