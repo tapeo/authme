@@ -28,13 +28,16 @@ const jwtDecodeMiddleware = async (
 
     clearCookies(res);
 
-    return res.status(401).jsonTyped({
-      status: "error",
-      message: "Unauthorized, access token not found",
-      data: {
-        error: JwtError.TOKEN_NOT_FOUND,
-      },
-    });
+    return res
+      .status(401)
+      .header("X-Auth-Error", JwtError.TOKEN_NOT_FOUND)
+      .jsonTyped({
+        status: "error",
+        message: "Unauthorized, access token not found",
+        data: {
+          error: JwtError.TOKEN_NOT_FOUND,
+        },
+      });
   }
 
   try {
@@ -72,37 +75,46 @@ const jwtDecodeMiddleware = async (
     if (error instanceof jwt.TokenExpiredError) {
       console.log("[JWT] Token expired");
 
-      return res.status(401).jsonTyped({
-        status: "error",
-        message: "Unauthorized, access token expired",
-        data: {
-          error: JwtError.TOKEN_EXPIRED,
-        },
-      });
+      return res
+        .status(401)
+        .header("X-Auth-Error", JwtError.TOKEN_EXPIRED)
+        .jsonTyped({
+          status: "error",
+          message: "Unauthorized, access token expired",
+          data: {
+            error: JwtError.TOKEN_EXPIRED,
+          },
+        });
     } else if (error instanceof jwt.JsonWebTokenError) {
       console.log("[JWT] Invalid token");
 
       clearCookies(res);
 
-      return res.status(401).jsonTyped({
-        status: "error",
-        message: "Unauthorized, invalid access token",
-        data: {
-          error: JwtError.TOKEN_INVALID,
-        },
-      });
+      return res
+        .status(401)
+        .header("X-Auth-Error", JwtError.TOKEN_INVALID)
+        .jsonTyped({
+          status: "error",
+          message: "Unauthorized, invalid access token",
+          data: {
+            error: JwtError.TOKEN_INVALID,
+          },
+        });
     } else {
       console.log("[JWT] Malformed token");
 
       clearCookies(res);
 
-      return res.status(401).jsonTyped({
-        status: "error",
-        message: "Unauthorized, malformed access token",
-        data: {
-          error: JwtError.MALFORMED_TOKEN,
-        },
-      });
+      return res
+        .status(401)
+        .header("X-Auth-Error", JwtError.MALFORMED_TOKEN)
+        .jsonTyped({
+          status: "error",
+          message: "Unauthorized, malformed access token",
+          data: {
+            error: JwtError.MALFORMED_TOKEN,
+          },
+        });
     }
   }
 };
