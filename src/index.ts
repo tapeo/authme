@@ -64,15 +64,15 @@ export let OAuthStateModel: Model<IOAuthState>;
 export let OtpModel: Model<IOtp>;
 export let UserModel: Model<User>;
 
-export function start(app: Express, options: StartOptions) {
+export async function start(app: Express, options: StartOptions) {
   emailOptions = options.email;
   mongooseOptions = options.mongoose;
 
-  connectDB(options.mongooseInstance, mongooseOptions).then(() => {
-    OAuthStateModel = registerOAuthStateModel(options.mongooseInstance);
-    OtpModel = registerOtpModel(options.mongooseInstance);
-    UserModel = registerUserModel(options.mongooseInstance);
-  });
+  await connectDB(options.mongooseInstance, mongooseOptions);
+
+  OAuthStateModel = registerOAuthStateModel(options.mongooseInstance);
+  OtpModel = registerOtpModel(options.mongooseInstance);
+  UserModel = registerUserModel(options.mongooseInstance);
 
   console.log(process.env.ENV);
 
