@@ -124,6 +124,11 @@ export class GoogleController {
 
         user = await UserService.post(email, passwordEncrypted);
 
+        if (!user) {
+          res.redirect(this.googleErrorRedirectUri);
+          return;
+        }
+
         await Telegram.send({
           text: `New user registered with Google: ${email} on ${req.headers.host}`,
         });
