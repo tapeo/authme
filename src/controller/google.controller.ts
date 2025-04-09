@@ -150,10 +150,16 @@ export class GoogleController {
       const jwtRefreshToken = generateRefreshToken(user._id.toString(), email);
 
       const encryptedRefreshToken = encrypt(jwtRefreshToken);
-      await RefreshTokenService.post(
+
+      const refreshToken = await RefreshTokenService.post(
         user._id.toString(),
         encryptedRefreshToken
       );
+
+      if (!refreshToken) {
+        res.redirect(this.googleErrorRedirectUri);
+        return;
+      }
 
       setCookies(jwtAccessToken, jwtRefreshToken, res);
 

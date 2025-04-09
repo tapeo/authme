@@ -1,9 +1,13 @@
 import { UserModel } from "..";
+import { RefreshToken, User } from "../model/user.model";
 
 export class RefreshTokenService {
   private static expireAfter: number = 30 * 24 * 60 * 60 * 1000;
 
-  public static post = async (userId: string, refreshToken: string) => {
+  public static post = async (
+    userId: string,
+    refreshToken: string
+  ): Promise<RefreshToken | null> => {
     const data = {
       id_user: userId,
       expires_at: new Date(Date.now() + this.expireAfter),
@@ -17,8 +21,9 @@ export class RefreshTokenService {
     );
 
     const user = await UserModel.findById(userId);
+
     if (!user) {
-      throw new Error("User not found");
+      return null;
     }
 
     const validTokens = user.refresh_tokens.filter(
@@ -36,29 +41,27 @@ export class RefreshTokenService {
     return validTokens[validTokens.length - 1];
   };
 
-  public static getByUserId = async (userId: string) => {
+  public static getByUserId = async (
+    userId: string
+  ): Promise<RefreshToken[]> => {
     const user = await UserModel.findById(userId);
 
     if (!user) {
-      throw new Error("User not found");
+      return [];
     }
 
-    return user.refresh_tokens;
+    return user.refresh_tokens ?? [];
   };
 
   public static delete = async (
     userId: string,
     encryptedRefreshToken: string
-  ) => {
+  ): Promise<User | null> => {
     const user = await UserModel.findByIdAndUpdate(
       userId,
       { $pull: { refresh_tokens: { encrypted_jwt: encryptedRefreshToken } } },
       { new: true, useFindAndModify: false }
     );
-
-    if (!user) {
-      throw new Error("User not found");
-    }
 
     return user;
   };

@@ -60,8 +60,29 @@ export class RefreshTokenController {
 
     const encryptedRefreshToken = encrypt(generatedRefreshToken);
 
-    await RefreshTokenService.delete(idUser, tokenFoundEncrypted);
-    await RefreshTokenService.post(idUser, encryptedRefreshToken);
+    const deleted = await RefreshTokenService.delete(
+      idUser,
+      tokenFoundEncrypted
+    );
+
+    if (!deleted) {
+      res
+        .status(401)
+        .json({ message: "Unauthorized, no refresh tokens can be deleted" });
+      return;
+    }
+
+    const posted = await RefreshTokenService.post(
+      idUser,
+      encryptedRefreshToken
+    );
+
+    if (!posted) {
+      res
+        .status(401)
+        .json({ message: "Unauthorized, no refresh tokens can be posted" });
+      return;
+    }
 
     setCookies(generatedAccessToken, generatedRefreshToken, res);
 

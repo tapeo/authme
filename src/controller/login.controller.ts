@@ -43,10 +43,17 @@ export class LoginController {
 
       const encryptedRefreshToken = encrypt(refreshToken);
 
-      await RefreshTokenService.post(
+      const posted = await RefreshTokenService.post(
         user._id.toString(),
         encryptedRefreshToken
       );
+
+      if (!posted) {
+        res
+          .status(401)
+          .json({ message: "Unauthorized, no refresh tokens can be posted" });
+        return;
+      }
 
       setCookies(accessToken, refreshToken, res);
 

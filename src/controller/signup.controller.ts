@@ -163,11 +163,28 @@ export class SignupController {
 
     const user = await UserService.post(randomEmail, passwordEncrypted, true);
 
+    if (!user) {
+      return res.status(400).jsonTyped({
+        status: "error",
+        message: "Failed to create anonymous user, user not found",
+      });
+    }
+
     const accessToken = generateAccessToken(user._id.toString(), randomEmail);
     const refreshToken = generateRefreshToken(user._id.toString(), randomEmail);
     const encryptedRefreshToken = encrypt(refreshToken);
 
-    await RefreshTokenService.post(user._id.toString(), encryptedRefreshToken);
+    const posted = await RefreshTokenService.post(
+      user._id.toString(),
+      encryptedRefreshToken
+    );
+    if (!posted) {
+      res
+        .status(401)
+        .json({ message: "Unauthorized, no refresh tokens can be posted" });
+      return;
+    }
+
     setCookies(accessToken, refreshToken, res);
 
     await Telegram.send({
@@ -263,7 +280,17 @@ export class SignupController {
     const refreshToken = generateRefreshToken(idUser, sanitizedEmail);
     const encryptedRefreshToken = encrypt(refreshToken);
 
-    await RefreshTokenService.post(idUser, encryptedRefreshToken);
+    const posted = await RefreshTokenService.post(
+      idUser,
+      encryptedRefreshToken
+    );
+    if (!posted) {
+      res
+        .status(401)
+        .json({ message: "Unauthorized, no refresh tokens can be posted" });
+      return;
+    }
+
     setCookies(accessToken, refreshToken, res);
 
     await Telegram.send({
@@ -296,6 +323,13 @@ export class SignupController {
       passwordEncrypted,
       isAnonymous
     );
+
+    if (!user) {
+      return res.status(400).jsonTyped({
+        status: "error",
+        message: "Failed to create user, user not found",
+      });
+    }
 
     await Telegram.send({
       text: `New user registered: ${sanitizedEmail} on ${req.headers.host}`,
