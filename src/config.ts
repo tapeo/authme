@@ -8,7 +8,7 @@ export class Config {
     }
 
     static get jwtRefreshTokenExpiresIn() {
-        return process.env.ENV === "development" ? "5m" : "90d";
+        return process.env.ENV === "development" ? "10m" : "90d";
     }
 
     static get cookieAccessTokenMaxAge() {
@@ -16,6 +16,6 @@ export class Config {
     }
 
     static get cookieRefreshTokenMaxAge() {
-        return process.env.ENV === "development" ? this.oneMinuteMillis * 5 : this.oneDayMillis * 90;
+        return process.env.ENV === "development" ? this.oneMinuteMillis * 10 : this.oneDayMillis * 90;
     }
 }
