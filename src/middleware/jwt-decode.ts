@@ -20,8 +20,21 @@ const jwtDecodeMiddleware = async (
     return next();
   }
 
+  const accessTokenAuthorization = req.headers.authorization?.split(" ")[1];
+  const accessTokenCookie = req.cookies.access_token;
+  const refreshTokenCookie = req.cookies.refresh_token;
+
   const accessToken =
-    req.headers.authorization?.split(" ")[1] ?? req.cookies.access_token;
+    accessTokenAuthorization ?? accessTokenCookie;
+
+  // If access token is expired (no authorization header and no access token cookie) but has refresh token, return token expired
+  if (!accessToken && !!refreshTokenCookie) {
+    return res.status(401).jsonTyped({
+      status: "error",
+      message: "Unauthorized, access token expired",
+      error: JwtError.TOKEN_EXPIRED,
+    });
+  }
 
   if (!accessToken) {
     clearCookies(res);

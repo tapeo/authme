@@ -1,8 +1,8 @@
 import { UserModel } from "..";
+import { Config } from "../config";
 import { RefreshToken, User } from "../model/user.model";
 
 export class RefreshTokenService {
-  private static expireAfter: number = 30 * 24 * 60 * 60 * 1000;
 
   public static post = async (
     userId: string,
@@ -10,7 +10,7 @@ export class RefreshTokenService {
   ): Promise<RefreshToken | null> => {
     const data = {
       id_user: userId,
-      expires_at: new Date(Date.now() + this.expireAfter),
+      expires_at: new Date(Date.now() + Config.cookieRefreshTokenMaxAge),
       encrypted_jwt: refreshToken,
     };
 

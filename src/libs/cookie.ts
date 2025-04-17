@@ -12,14 +12,14 @@ export const setCookies = (
     httpOnly: isProduction,
     secure: isProduction,
     sameSite: isProduction ? "none" : "lax",
-    maxAge: Config.cookieAccessTokenExpiresIn,
+    maxAge: Config.cookieAccessTokenMaxAge,
   });
 
   res.cookie("refresh_token", refreshToken, {
     httpOnly: isProduction,
     secure: isProduction,
     sameSite: isProduction ? "none" : "lax",
-    maxAge: Config.cookieRefreshTokenExpiresIn,
+    maxAge: Config.cookieRefreshTokenMaxAge,
   });
 };
 

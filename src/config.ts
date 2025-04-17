@@ -1,7 +1,7 @@
 export class Config {
-    static oneMinuteInSeconds = 60;
-    static oneHourInSeconds = Config.oneMinuteInSeconds * 60;
-    static oneDayInSeconds = Config.oneHourInSeconds * 24;
+    static oneMinuteMillis = 60 * 1000;
+    static oneHourMillis = Config.oneMinuteMillis * 60;
+    static oneDayMillis = Config.oneHourMillis * 24;
 
     static get jwtAccessTokenExpiresIn() {
         return process.env.ENV === "development" ? "1m" : "15m";
@@ -11,11 +11,11 @@ export class Config {
         return process.env.ENV === "development" ? "5m" : "30d";
     }
 
-    static get cookieAccessTokenExpiresIn() {
-        return process.env.ENV === "development" ? this.oneMinuteInSeconds : this.oneMinuteInSeconds * 15;
+    static get cookieAccessTokenMaxAge() {
+        return process.env.ENV === "development" ? this.oneMinuteMillis : this.oneMinuteMillis * 15;
     }
 
-    static get cookieRefreshTokenExpiresIn() {
-        return process.env.ENV === "development" ? this.oneMinuteInSeconds * 5 : this.oneDayInSeconds * 30;
+    static get cookieRefreshTokenMaxAge() {
+        return process.env.ENV === "development" ? this.oneMinuteMillis * 5 : this.oneDayMillis * 30;
     }
 }
