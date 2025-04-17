@@ -84,6 +84,11 @@ export class RefreshTokenController {
       return;
     }
 
+    if (generatedAccessToken === "" || generatedRefreshToken === "") {
+      res.status(401).json({ message: "Unauthorized, no tokens generated" });
+      return;
+    }
+
     setCookies(generatedAccessToken, generatedRefreshToken, res);
 
     res.status(200).json({
