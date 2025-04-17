@@ -1,7 +1,5 @@
 import { Response } from "express";
-
-export const JWT_EXPIRATION_TIME = 3600000;
-export const REFRESH_TOKEN_EXPIRATION_TIME = 24 * 60 * 60 * 1000;
+import { Config } from "../config";
 
 export const setCookies = (
   accessToken: string,
@@ -14,14 +12,14 @@ export const setCookies = (
     httpOnly: isProduction,
     secure: isProduction,
     sameSite: isProduction ? "none" : "lax",
-    maxAge: JWT_EXPIRATION_TIME,
+    maxAge: Config.cookieAccessTokenExpiresIn,
   });
 
   res.cookie("refresh_token", refreshToken, {
     httpOnly: isProduction,
     secure: isProduction,
     sameSite: isProduction ? "none" : "lax",
-    maxAge: REFRESH_TOKEN_EXPIRATION_TIME,
+    maxAge: Config.cookieRefreshTokenExpiresIn,
   });
 };
 

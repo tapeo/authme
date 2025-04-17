@@ -1,9 +1,8 @@
 import jwt from "jsonwebtoken";
+import { Config } from "../config";
 
 export const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET!;
 export const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET!;
-
-const accessTokenExpiresIn = process.env.ENV === "development" ? "1m" : "15m";
 
 export function verifyJWT(token: string): string | jwt.JwtPayload {
   return jwt.verify(token, ACCESS_TOKEN_SECRET);
@@ -21,7 +20,7 @@ export function generateAccessToken(userId: string, email: string): string {
     },
     ACCESS_TOKEN_SECRET,
     {
-      expiresIn: accessTokenExpiresIn,
+      expiresIn: Config.jwtAccessTokenExpiresIn,
     }
   );
 }
@@ -33,7 +32,7 @@ export function generateRefreshToken(userId: string, email: string): string {
       "x-email": email,
     },
     REFRESH_TOKEN_SECRET,
-    { expiresIn: "30d" }
+    { expiresIn: Config.jwtRefreshTokenExpiresIn }
   );
 }
 
