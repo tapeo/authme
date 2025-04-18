@@ -44,6 +44,9 @@ interface StartOptions {
     from: string;
   };
   mongoose?: DbOptions;
+  auth?: {
+    useOtp: boolean;
+  };
   cors?: {
     allowedHeaders: string[];
   };
@@ -103,7 +106,7 @@ export async function start(app: Express, options: StartOptions) {
 
   // Setup routes
   app.post("/auth/login", LoginController.login);
-  app.post("/auth/signup", SignupController.signupWithoutVerificationHandler);
+  app.post("/auth/signup", options.auth?.useOtp === true ? SignupController.signupWithVerificationHandler : SignupController.signupWithoutVerificationHandler);
   app.post("/auth/signup/anonymous", SignupController.signupAnonymousHandler);
   app.post(
     "/auth/signup/merge",
