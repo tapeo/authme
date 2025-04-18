@@ -59,8 +59,14 @@ export class LoginController {
 
       res.json({
         message: "Login successful, tokens saved as httpOnly cookie",
+        // @deprecated remove when app is updated
         access_token: accessToken,
         refresh_token: refreshToken,
+        data: {
+          access_token: accessToken,
+          refresh_token: refreshToken,
+          user: user,
+        }
       });
     } else {
       res.status(401).json({ message: "Invalid password" });
