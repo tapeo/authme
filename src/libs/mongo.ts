@@ -4,8 +4,8 @@ export type DbOptions = {
   prod_db_name?: string;
   test_db_name?: string;
   user_schema?: {
-    pre?: (doc: Document) => void;
-    post?: (doc: Document) => void;
+    pre?: (doc: Document) => Promise<void>;
+    post?: (doc: Document) => Promise<void>;
   };
 };
 

@@ -188,3 +188,134 @@ An Insomnia collection is included in the repository to help you test all the av
 - Implements rate limiting for sensitive operations
 - Securely handles password reset flows
 - Validates anonymous account ownership during merging
+
+# Google Authentication Setup
+
+This document explains how to set up Google OAuth authentication for the SEO AI Pal application.
+
+## Setup Steps
+
+### 1. Configure OAuth Consent Screen
+
+1. Go to the [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project or select an existing one
+3. Navigate to "APIs & Services" > "OAuth consent screen"
+4. Select the appropriate user type:
+   - "External" for production use (available to any Google user)
+   - "Internal" for testing (only available to users in your organization)
+5. Fill in the required application information:
+   - App name
+   - User support email: Your support email address
+   - Developer contact information: Your contact email
+
+### 2. Create OAuth Credentials
+
+1. Navigate to "Create OAuth client ID"
+2. Click "Create Credentials" and select "OAuth client ID"
+3. Select "Web application" as the application type
+4. Add a name for your OAuth client
+5. Add authorized JavaScript origins:
+   - `https://example.com` (production)
+   - `https://beta.example.com` (beta)
+   - `http://localhost:3000` (development)
+6. Add authorized redirect URIs:
+   - `https://api.example.com/auth/google/callback` (production)
+   - `https://api.beta.example.com/auth/google/callback` (beta)
+   - `http://localhost:3000/auth/google/callback` (development)
+7. Click "Create"
+8. Note your Client ID and Client Secret
+
+### 3. Configure Environment Variables
+
+Add the following environment variables to your `.env` file:
+
+```
+GOOGLE_CLIENT_ID=your_client_id
+GOOGLE_CLIENT_SECRET=your_client_secret
+GOOGLE_REDIRECT_URI=https://example.com/auth/google/callback
+GOOGLE_AUTHENTICATED_REDIRECT_URL=https://example.com/authenticated
+GOOGLE_ERROR_REDIRECT_URL=https://example.com
+
+```
+
+### 4. MongoDB Integration
+
+The Google authentication implementation uses MongoDB for:
+
+1. **User Management**: Users who authenticate with Google are stored in the same user collection as regular users.
+2. **OAuth State Management**: To prevent CSRF attacks, a state parameter is used in the OAuth flow. These states are stored in MongoDB with automatic expiration using TTL indexes.
+3. **Refresh Token Management**: Refresh tokens are encrypted and stored in the user document.
+
+The implementation includes:
+
+- Automatic cleanup of expired OAuth states via MongoDB TTL indexes
+- User profile data synchronization (name and profile picture)
+
+### 5. Test the Integration
+
+1. Start your backend server
+2. Navigate to `http://localhost:8080/auth/google` (or your deployed URL)
+3. You should be redirected to Google's login page
+4. After successful authentication, you'll be redirected back to your frontend application
+
+## How It Works
+
+1. When a user clicks "Login with Google", they are redirected to `/auth/google`
+2. The server generates a state parameter and stores it in MongoDB
+3. The server redirects to Google's authentication page with the state parameter
+4. After authentication, Google redirects back to `/auth/google/callback` with a code and the state parameter
+5. The server verifies the state parameter by checking it against MongoDB
+6. The server exchanges the code for tokens from Google
+7. The server retrieves the user's profile information from Google
+8. The server creates or retrieves the user from the database
+9. The server generates JWT tokens and sets authentication cookies
+10. The user is redirected to the frontend application, now authenticated
+
+## Troubleshooting
+
+### Error 400: redirect_uri_mismatch
+
+If you encounter the error "Error 400: redirect_uri_mismatch" during authentication, it means the redirect URI used in your application doesn't match any of the authorized redirect URIs configured in your Google Cloud Console.
+
+To fix this issue:
+
+1. Check your environment variables:
+
+   - Verify that `GOOGLE_REDIRECT_URI` in your `.env` file exactly matches one of the URIs you added to the authorized redirect URIs in Google Cloud Console
+   - If `GOOGLE_REDIRECT_URI` is not set, check the default value in your code (typically `http://localhost:8080/auth/google/callback` for development)
+
+2. Check your Google Cloud Console configuration:
+
+   - Go to Google Cloud Console > APIs & Services > Credentials
+   - Edit your OAuth 2.0 Client ID
+   - Ensure the redirect URI used by your application is listed in the "Authorized redirect URIs" section
+   - Remember that URIs are case-sensitive and must match exactly (including http/https, trailing slashes, etc.)
+
+3. Common issues:
+
+   - Mismatched protocols (http vs https)
+   - Different ports (8080 vs 3000)
+   - Missing or extra path segments (/auth/google/callback vs /auth/google)
+   - Typos or case differences
+
+4. Debug steps:
+
+   - Add a console.log statement in your code to print the exact redirect URI being used:
+     ```javascript
+     console.log("Using redirect URI:", GOOGLE_REDIRECT_URI);
+     ```
+   - Compare this with the URIs configured in Google Cloud Console
+
+5. After making changes:
+   - Save your changes in Google Cloud Console
+   - Restart your application to apply any environment variable changes
+   - Try the authentication flow again
+
+## Security Considerations
+
+- The implementation uses state parameters stored in MongoDB to prevent CSRF attacks
+- MongoDB's TTL index automatically removes expired OAuth states
+- Refresh tokens are encrypted before storage
+- All sensitive data is transmitted over HTTPS in production
+- Cookies are set with appropriate security flags based on the environment
+- User passwords for Google-authenticated users are randomly generated and securely hashed
