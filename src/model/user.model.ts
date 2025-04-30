@@ -21,6 +21,7 @@ export interface User {
   name?: string | null;
   type?: string | null;
   is_anonymous?: boolean;
+  last_access?: Date | null;
 }
 
 export function registerUserModel(mongooseInstance: Mongoose) {
@@ -81,6 +82,10 @@ export function registerUserModel(mongooseInstance: Mongoose) {
     is_anonymous: {
       type: Boolean,
       default: false,
+    },
+    last_access: {
+      type: Date,
+      default: null,
     },
   });
 
