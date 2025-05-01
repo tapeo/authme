@@ -20,6 +20,7 @@ import { PasswordController } from "./controller/password.controller";
 import { RefreshTokenController } from "./controller/refresh-token.controller";
 import { SignupController } from "./controller/signup.controller";
 import jwtDecodeMiddleware from "./middleware/jwt-decode";
+import { updateLastAccess } from "./middleware/last-access.middleware";
 import registerOAuthStateModel, {
   IOAuthState,
 } from "./model/oauth-state.model";
@@ -111,6 +112,7 @@ export async function start(app: Express, options: StartOptions) {
   app.post(
     "/auth/signup/merge",
     jwtDecodeMiddleware,
+    updateLastAccess,
     SignupController.mergeAnonymousAccountHandler
   );
   app.post(
@@ -130,8 +132,8 @@ export async function start(app: Express, options: StartOptions) {
   );
   app.post("/auth/password/update", PasswordController.updatePasswordHandler);
 
-  app.get("/user", jwtDecodeMiddleware, UserController.meHandler);
-  app.delete("/user", jwtDecodeMiddleware, UserController.deleteMeHandler);
+  app.get("/user", jwtDecodeMiddleware, updateLastAccess, UserController.meHandler);
+  app.delete("/user", jwtDecodeMiddleware, updateLastAccess, UserController.deleteMeHandler);
 
   app.get("/auth/reset-password.html", (req, res) => {
     res.sendFile(publicPath + "/reset-password.html");
