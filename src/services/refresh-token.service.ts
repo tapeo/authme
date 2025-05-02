@@ -9,7 +9,6 @@ export class RefreshTokenService {
     refreshToken: string
   ): Promise<RefreshToken | null> => {
     const data = {
-      id_user: userId,
       expires_at: new Date(Date.now() + Config.cookieRefreshTokenMaxAge),
       encrypted_jwt: refreshToken,
     };

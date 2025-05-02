@@ -91,6 +91,7 @@ export async function start(app: Express, options: StartOptions) {
       "Authorization",
       "Access-Control-Allow-Origin",
       "id_user",
+      "user_id",
       ...(options.cors?.allowedHeaders || []),
     ],
   };

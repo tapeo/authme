@@ -4,7 +4,7 @@ import { UserService } from "../services/user.service";
 
 export class UserController {
   public static meHandler = async (req: Request, res: Response) => {
-    const idUser = req.headers.id_user as string;
+    const idUser = req.headers.user_id as string;
 
     const user = await UserService.getById(idUser, [
       "password",
@@ -28,7 +28,7 @@ export class UserController {
   };
 
   public static deleteMeHandler = async (req: Request, res: Response) => {
-    const idUser = req.headers.id_user as string;
+    const idUser = req.headers.user_id as string;
 
     const user = await UserService.getById(idUser);
 
