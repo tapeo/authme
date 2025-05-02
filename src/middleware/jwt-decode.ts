@@ -70,6 +70,7 @@ const jwtDecodeMiddleware = async (
     }
 
     req.headers.id_user = idUser;
+    req.headers.user_id = idUser;
     req.headers.email = email;
 
     next();
