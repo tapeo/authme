@@ -3,7 +3,7 @@ import crypto from "crypto";
 import { Request, Response } from "express";
 import { Email } from "../extensions/email.extension";
 import { Telegram } from "../extensions/telegram.extension";
-import { emailOptions, OtpModel } from "../index";
+import { appConfig, OtpModel } from "../index";
 import { setCookies } from "../libs/cookie";
 import { encrypt } from "../libs/crypto";
 import { generateAccessToken, generateRefreshToken } from "../libs/jwt";
@@ -47,22 +47,22 @@ export class SignupController {
     });
 
     await Email.send({
-      from_email: emailOptions?.from,
+      from_email: appConfig?.email?.from,
       to_email: sanitizedEmail,
       subject: "Email Verification",
       html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <p>Welcome to ${emailOptions.name}!</p>
+        <p>Welcome to ${appConfig?.email?.name}!</p>
         
         <p>Your verification code is: <strong>${otp}</strong></p>
         
         <p>This code will expire in 10 minutes.</p>
         
-        <p>Best regards,<br>${emailOptions.name} Team</p>
+        <p>Best regards,<br>${appConfig?.email?.name} Team</p>
 
         <hr style="margin: 20px 0; border: none; border-top: 1px solid #eee;">
         <p style="font-size: 12px; color: #666;">
-          You received this email because you signed up for ${emailOptions.name}. 
+          You received this email because you signed up for ${appConfig?.email?.name}. 
           If you didn't request this, you can safely ignore this email.
         </p>
       </div>

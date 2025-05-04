@@ -1,5 +1,5 @@
 import { Mongoose } from "mongoose";
-import { mongooseOptions } from "../index";
+import { appConfig } from "..";
 
 export interface RefreshToken {
   expires_at: Date;
@@ -92,15 +92,15 @@ export function registerUserModel(mongooseInstance: Mongoose) {
   UserSchema.index({ email: 1 }, { unique: true });
 
   UserSchema.pre("save", async function (next) {
-    if (mongooseOptions?.user_schema?.pre) {
-      mongooseOptions.user_schema.pre(this as any);
+    if (appConfig?.mongoose?.user_schema?.pre) {
+      appConfig.mongoose.user_schema.pre(this as any);
     }
     next();
   });
 
   UserSchema.post("save", async function (doc) {
-    if (mongooseOptions?.user_schema?.post) {
-      mongooseOptions.user_schema.post(doc as any);
+    if (appConfig?.mongoose?.user_schema?.post) {
+      appConfig.mongoose.user_schema.post(doc as any);
     }
   });
 
