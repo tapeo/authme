@@ -1,18 +1,6 @@
-import { Mongoose } from "mongoose";
+import { appConfig } from "..";
 
-export type DbOptions = {
-  prod_db_name?: string;
-  test_db_name?: string;
-  user_schema?: {
-    pre?: (doc: Document) => Promise<void>;
-    post?: (doc: Document) => Promise<void>;
-  };
-};
-
-export const connectDB = async (
-  mongooseInstance: Mongoose,
-  options?: DbOptions
-) => {
+export const connectDB = async () => {
   const mongoUri = process.env.MONGO_URI;
 
   if (!mongoUri) {
@@ -24,9 +12,9 @@ export const connectDB = async (
 
   let databaseName;
   if (env === "production") {
-    databaseName = options?.prod_db_name || "prod";
+    databaseName = appConfig.mongoose.prod_db_name || "prod";
   } else {
-    databaseName = options?.test_db_name || "test";
+    databaseName = appConfig.mongoose.test_db_name || "test";
   }
 
   const url = new URL(mongoUri);
@@ -35,7 +23,7 @@ export const connectDB = async (
   const uri = url.toString();
 
   try {
-    await mongooseInstance!.connect(uri);
+    await appConfig.mongoose.instance.connect(uri);
     console.log("MongoDB Connected");
   } catch (err) {
     console.error(err);

@@ -1,5 +1,4 @@
-import { UserModel } from "..";
-import { Config } from "../config";
+import { appConfig, UserModel } from "..";
 import { RefreshToken, User } from "../model/user.model";
 
 export class RefreshTokenService {
@@ -9,7 +8,7 @@ export class RefreshTokenService {
     refreshToken: string
   ): Promise<RefreshToken | null> => {
     const data = {
-      expires_at: new Date(Date.now() + Config.cookieRefreshTokenMaxAge),
+      expires_at: new Date(Date.now() + appConfig.jwt.cookie_refresh_token_max_age),
       encrypted_jwt: refreshToken,
     };
 

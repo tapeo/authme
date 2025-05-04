@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { Config } from "../config";
+import { appConfig } from "..";
 
 export const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET!;
 export const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET!;
@@ -20,7 +20,7 @@ export function generateAccessToken(userId: string, email: string): string {
     },
     ACCESS_TOKEN_SECRET,
     {
-      expiresIn: Config.jwtAccessTokenExpiresIn,
+      expiresIn: appConfig.jwt.access_token_expires_in,
     }
   );
 }
@@ -32,7 +32,7 @@ export function generateRefreshToken(userId: string, email: string): string {
       "x-email": email,
     },
     REFRESH_TOKEN_SECRET,
-    { expiresIn: Config.jwtRefreshTokenExpiresIn }
+    { expiresIn: appConfig.jwt.refresh_token_expires_in }
   );
 }
 

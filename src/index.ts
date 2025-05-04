@@ -10,9 +10,10 @@ import fs from "fs";
 import https from "https";
 import path from "path";
 import { extendResponse } from "./extensions/response";
-import connectDB, { DbOptions } from "./libs/mongo";
+import connectDB from "./libs/mongo";
 
 import { Model, Mongoose } from "mongoose";
+import { AuthConfig, CorsConfig, DefaultConfig, EmailConfig, JwtConfig, MongoConfig, ServerConfig } from "./config";
 import { GoogleController } from "./controller/google.controller";
 import { LoginController } from "./controller/login.controller";
 import { UserController } from "./controller/me.controller";
@@ -27,6 +28,7 @@ import registerOAuthStateModel, {
 import registerOtpModel, { IOtp } from "./model/otp.model";
 import registerUserModel, { User } from "./model/user.model";
 
+export * from "./config";
 export * from "./extensions";
 export * from "./libs";
 export * from "./middleware";
@@ -35,48 +37,54 @@ export * from "./types";
 
 const publicPath = path.join(dirname(__filename), "public");
 
-interface StartOptions {
-  host: string;
-  port: number;
-  mongooseInstance: Mongoose;
-  https?: boolean;
-  email: {
-    name: string;
-    from: string;
-  };
-  mongoose?: DbOptions;
-  auth?: {
-    useOtp: boolean;
-  };
-  cors?: {
-    allowedHeaders: string[];
-  };
-}
-
-export let emailOptions: StartOptions["email"] = {
-  name: "Your App Name",
-  from: "email@example.com",
-};
-
-export let mongooseOptions: DbOptions | undefined = {
-  prod_db_name: undefined,
-  test_db_name: undefined,
-  user_schema: undefined,
-};
-
 export let OAuthStateModel: Model<IOAuthState>;
 export let OtpModel: Model<IOtp>;
 export let UserModel: Model<User>;
 
-export async function start(app: Express, options: StartOptions) {
-  emailOptions = options.email;
-  mongooseOptions = options.mongoose;
+interface OverrideConfig {
+  server?: ServerConfig;
+  mongoose?: MongoConfig;
+  jwt?: JwtConfig;
+  auth?: AuthConfig;
+  cors?: CorsConfig;
+  email?: EmailConfig;
+}
 
-  await connectDB(options.mongooseInstance, mongooseOptions);
+export let appConfig: DefaultConfig;
 
-  OAuthStateModel = registerOAuthStateModel(options.mongooseInstance);
-  OtpModel = registerOtpModel(options.mongooseInstance);
-  UserModel = registerUserModel(options.mongooseInstance);
+export async function start(app: Express, override: OverrideConfig) {
+  appConfig = {
+    server: override.server || {
+      host: "0.0.0.0",
+      port: 8080,
+      https: false,
+    },
+    mongoose: override.mongoose || {
+      instance: new Mongoose(),
+    },
+    jwt: override.jwt || {
+      access_token_expires_in: "15m",
+      refresh_token_expires_in: "90d",
+      cookie_access_token_max_age: 1000 * 60 * 15,
+      cookie_refresh_token_max_age: 1000 * 60 * 60 * 24 * 90,
+    },
+    auth: override.auth || {
+      useOtp: false,
+    },
+    cors: override.cors || {
+      allowedHeaders: [],
+    },
+    email: override.email || {
+      name: "App Name",
+      from: "app@example.com",
+    },
+  };
+
+  await connectDB();
+
+  OAuthStateModel = registerOAuthStateModel(appConfig.mongoose.instance);
+  OtpModel = registerOtpModel(appConfig.mongoose.instance);
+  UserModel = registerUserModel(appConfig.mongoose.instance);
 
   console.log(process.env.ENV);
 
@@ -92,7 +100,7 @@ export async function start(app: Express, options: StartOptions) {
       "Access-Control-Allow-Origin",
       "id_user",
       "user_id",
-      ...(options.cors?.allowedHeaders || []),
+      ...(appConfig.cors?.allowedHeaders || []),
     ],
   };
 
@@ -108,7 +116,7 @@ export async function start(app: Express, options: StartOptions) {
 
   // Setup routes
   app.post("/auth/login", LoginController.login);
-  app.post("/auth/signup", options.auth?.useOtp === true ? SignupController.signupWithVerificationHandler : SignupController.signupWithoutVerificationHandler);
+  app.post("/auth/signup", appConfig.auth?.useOtp === true ? SignupController.signupWithVerificationHandler : SignupController.signupWithoutVerificationHandler);
   app.post("/auth/signup/anonymous", SignupController.signupAnonymousHandler);
   app.post(
     "/auth/signup/merge",
@@ -140,10 +148,7 @@ export async function start(app: Express, options: StartOptions) {
     res.sendFile(publicPath + "/reset-password.html");
   });
 
-  const host = options?.host || "0.0.0.0";
-  const port = options?.port || 8080;
-
-  const useHttps = options?.https || process.env.DEV_SERVER_HTTPS === "true";
+  const useHttps = appConfig?.server?.https || process.env.DEV_SERVER_HTTPS === "true";
 
   if (useHttps) {
     https
@@ -154,12 +159,12 @@ export async function start(app: Express, options: StartOptions) {
         },
         app
       )
-      .listen(port, host, () => {
-        console.log(`[server]: Server is running at https://${host}:${port}`);
+      .listen(appConfig.server.port, appConfig.server.host, () => {
+        console.log(`[server]: Server is running at https://${appConfig.server.host}:${appConfig.server.port}`);
       });
   } else {
-    app.listen(port, host, () => {
-      console.log(`[server]: Server is running at http://${host}:${port}`);
+    app.listen(appConfig.server.port, appConfig.server.host, () => {
+      console.log(`[server]: Server is running at http://${appConfig.server.host}:${appConfig.server.port}`);
     });
   }
 

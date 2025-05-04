@@ -1,5 +1,5 @@
 import { Response } from "express";
-import { Config } from "../config";
+import { appConfig } from "..";
 
 export const setCookies = (
   accessToken: string,
@@ -12,14 +12,14 @@ export const setCookies = (
     httpOnly: isProduction,
     secure: isProduction,
     sameSite: isProduction ? "none" : "lax",
-    maxAge: Config.cookieAccessTokenMaxAge,
+    maxAge: appConfig.jwt.cookie_access_token_max_age,
   });
 
   res.cookie("refresh_token", refreshToken, {
     httpOnly: isProduction,
     secure: isProduction,
     sameSite: isProduction ? "none" : "lax",
-    maxAge: Config.cookieRefreshTokenMaxAge,
+    maxAge: appConfig.jwt.cookie_refresh_token_max_age,
   });
 };
 

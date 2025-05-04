@@ -1,21 +1,46 @@
-export class Config {
-    static oneMinuteMillis = 60 * 1000;
-    static oneHourMillis = Config.oneMinuteMillis * 60;
-    static oneDayMillis = Config.oneHourMillis * 24;
+import { Mongoose } from "mongoose";
 
-    static get jwtAccessTokenExpiresIn() {
-        return process.env.ENV === "development" ? "1m" : "15m";
-    }
+export interface ServerConfig {
+    host: string;
+    port: number;
+    https: boolean;
+}
 
-    static get jwtRefreshTokenExpiresIn() {
-        return process.env.ENV === "development" ? "30m" : "90d";
-    }
+export interface MongoConfig {
+    instance: Mongoose;
+    prod_db_name?: string;
+    test_db_name?: string;
+    user_schema?: {
+        pre?: (doc: Document) => Promise<void>;
+        post?: (doc: Document) => Promise<void>;
+    };
+}
 
-    static get cookieAccessTokenMaxAge() {
-        return process.env.ENV === "development" ? this.oneMinuteMillis : this.oneMinuteMillis * 15;
-    }
+export interface JwtConfig {
+    access_token_expires_in: string;
+    refresh_token_expires_in: string;
+    cookie_access_token_max_age: number;
+    cookie_refresh_token_max_age: number;
+}
 
-    static get cookieRefreshTokenMaxAge() {
-        return process.env.ENV === "development" ? this.oneMinuteMillis * 10 : this.oneDayMillis * 90;
-    }
+export interface AuthConfig {
+    useOtp: boolean;
+}
+
+export interface CorsConfig {
+    allowedHeaders: string[];
+}
+
+export interface EmailConfig {
+    name: string;
+    from: string;
+}
+
+export interface DefaultConfig {
+    server: ServerConfig;
+    mongoose: MongoConfig;
+    jwt: JwtConfig;
+    auth: AuthConfig;
+    cors: CorsConfig;
+    email: EmailConfig;
 }
