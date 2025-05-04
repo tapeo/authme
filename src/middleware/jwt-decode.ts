@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
+import { appConfig } from "..";
 import { clearCookies } from "../libs";
-import { ACCESS_TOKEN_SECRET } from "../libs/jwt";
 
 enum JwtError {
   TOKEN_EXPIRED = "token_expired",
@@ -49,7 +49,7 @@ const jwtDecodeMiddleware = async (
   try {
     const decodedAccess: jwt.Jwt = jwt.verify(
       accessToken,
-      ACCESS_TOKEN_SECRET,
+      appConfig.auth.access_token_secret,
       {
         complete: true,
       }
