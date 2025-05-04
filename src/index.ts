@@ -45,6 +45,8 @@ export let appConfig: DefaultConfig;
 
 export async function start(app: Express, config: Config) {
   appConfig = {
+    env: config.env,
+    origin: config.origin,
     server: config.server || {
       host: "0.0.0.0",
       port: 8080,
@@ -59,9 +61,10 @@ export async function start(app: Express, config: Config) {
     },
     auth: config.auth,
     cors: config.cors || {
-      allowedHeaders: [],
+      allowed_headers: [],
     },
     email: config.email,
+    telegram: config.telegram,
   };
 
   await connectDB();
@@ -70,12 +73,8 @@ export async function start(app: Express, config: Config) {
   OtpModel = registerOtpModel(appConfig.mongoose.instance);
   UserModel = registerUserModel(appConfig.mongoose.instance);
 
-  console.log(process.env.ENV);
-
-  const origin: string[] = process.env.ORIGIN_LIST?.split(",") || [];
-
   const corsOptions = {
-    origin: origin,
+    origin: appConfig.origin,
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allowedHeaders: [
@@ -84,7 +83,7 @@ export async function start(app: Express, config: Config) {
       "Access-Control-Allow-Origin",
       "id_user",
       "user_id",
-      ...(appConfig.cors?.allowedHeaders || []),
+      ...(appConfig.cors?.allowed_headers || []),
     ],
   };
 
@@ -100,7 +99,7 @@ export async function start(app: Express, config: Config) {
 
   // Setup routes
   app.post("/auth/login", LoginController.login);
-  app.post("/auth/signup", appConfig.auth?.useOtp === true ? SignupController.signupWithVerificationHandler : SignupController.signupWithoutVerificationHandler);
+  app.post("/auth/signup", appConfig.auth?.use_otp === true ? SignupController.signupWithVerificationHandler : SignupController.signupWithoutVerificationHandler);
   app.post("/auth/signup/anonymous", SignupController.signupAnonymousHandler);
   app.post(
     "/auth/signup/merge",
@@ -132,7 +131,7 @@ export async function start(app: Express, config: Config) {
     res.sendFile(publicPath + "/reset-password.html");
   });
 
-  const useHttps = appConfig?.server?.https || process.env.DEV_SERVER_HTTPS === "true";
+  const useHttps = appConfig?.server?.https ?? false;
 
   if (useHttps) {
     https

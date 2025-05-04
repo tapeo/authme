@@ -6,7 +6,7 @@ export const setCookies = (
   refreshToken: string,
   res: Response
 ) => {
-  const isProduction = process.env.ENV === "production";
+  const isProduction = appConfig.env === "production";
 
   res.cookie("access_token", accessToken, {
     httpOnly: isProduction,
@@ -24,7 +24,7 @@ export const setCookies = (
 };
 
 export const clearCookies = (res: Response) => {
-  const isProduction = process.env.ENV === "production";
+  const isProduction = appConfig.env === "production";
 
   res.cookie("access_token", "", {
     httpOnly: isProduction,

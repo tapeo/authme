@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import { appConfig } from "..";
 
 type Props = {
   from_email: string;
@@ -7,23 +8,6 @@ type Props = {
   html: string;
 };
 
-const plunkSmtpConfig = {
-  host: "smtp.useplunk.com",
-  port: 465,
-  auth: {
-    user: "plunk",
-    pass: process.env.PLUNK_API_KEY,
-  },
-};
-
-const mailersendSmtpConfig = {
-  host: "smtp.mailersend.net",
-  port: 587,
-  auth: {
-    user: "MS_JgR7jg@ttclubmanager.com",
-    pass: process.env.MAILERSEND_API_KEY,
-  },
-};
 export class Email {
   public static send = async ({
     from_email,
@@ -31,6 +15,24 @@ export class Email {
     subject,
     html,
   }: Props) => {
+    const plunkSmtpConfig = {
+      host: "smtp.useplunk.com",
+      port: 465,
+      auth: {
+        user: appConfig.email.plunk?.user,
+        pass: appConfig.email.plunk?.pass,
+      },
+    };
+
+    const mailersendSmtpConfig = {
+      host: "smtp.mailersend.net",
+      port: 587,
+      auth: {
+        user: appConfig.email.mailersend?.user,
+        pass: appConfig.email.mailersend?.pass,
+      },
+    };
+
     const config = plunkSmtpConfig.auth.pass
       ? plunkSmtpConfig
       : mailersendSmtpConfig;

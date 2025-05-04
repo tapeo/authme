@@ -1,12 +1,11 @@
 import crypto from "crypto";
+import { appConfig } from "..";
 
 const IV_LENGTH = 16;
 
-const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY!;
-
 export function encrypt(text: string) {
   const iv = crypto.randomBytes(IV_LENGTH);
-  const key = Buffer.from(ENCRYPTION_KEY, "hex");
+  const key = Buffer.from(appConfig.auth.encryption_key, "hex");
   if (key.length !== 32) {
     throw new Error(
       "Invalid encryption key length. Must be 32 bytes (256 bits)."
@@ -22,7 +21,7 @@ export function decrypt(text: string) {
   const textParts = text.split(":");
   const iv = Buffer.from(textParts.shift() || "", "hex");
   const encryptedText = Buffer.from(textParts.join(":"), "hex");
-  const key = Buffer.from(ENCRYPTION_KEY, "hex");
+  const key = Buffer.from(appConfig.auth.encryption_key, "hex");
   if (key.length !== 32) {
     throw new Error(
       "Invalid encryption key length. Must be 32 bytes (256 bits)."

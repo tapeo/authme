@@ -1,3 +1,5 @@
+import { appConfig } from "..";
+
 type Props = {
   text: string;
 };
@@ -5,12 +7,12 @@ type Props = {
 export class Telegram {
   public static send = async ({ text }: Props) => {
     const body = {
-      chat_id: process.env.TELEGRAM_CHAT_ID,
+      chat_id: appConfig.telegram.chat_id,
       text: text,
     };
 
     const response = await fetch(
-      `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`,
+      `https://api.telegram.org/bot${appConfig.telegram.bot_token}/sendMessage`,
       {
         method: "POST",
         headers: {

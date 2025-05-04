@@ -1,11 +1,8 @@
 import jwt from "jsonwebtoken";
 import { appConfig } from "..";
 
-export const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET!;
-export const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET!;
-
 export function verifyJWT(token: string): string | jwt.JwtPayload {
-  return jwt.verify(token, ACCESS_TOKEN_SECRET);
+  return jwt.verify(token, appConfig.auth.access_token_secret);
 }
 
 export function jwtDecode(token: string): jwt.JwtPayload | null | string {
@@ -18,7 +15,7 @@ export function generateAccessToken(userId: string, email: string): string {
       "x-user-id": userId,
       "x-email": email,
     },
-    ACCESS_TOKEN_SECRET,
+    appConfig.auth.access_token_secret,
     {
       expiresIn: appConfig.jwt.access_token_expires_in,
     }
@@ -31,11 +28,11 @@ export function generateRefreshToken(userId: string, email: string): string {
       "x-user-id": userId,
       "x-email": email,
     },
-    REFRESH_TOKEN_SECRET,
+    appConfig.auth.refresh_token_secret,
     { expiresIn: appConfig.jwt.refresh_token_expires_in }
   );
 }
 
 export function verifyRefreshToken(token: string): string | jwt.JwtPayload {
-  return jwt.verify(token, REFRESH_TOKEN_SECRET);
+  return jwt.verify(token, appConfig.auth.refresh_token_secret);
 }
