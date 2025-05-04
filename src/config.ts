@@ -44,3 +44,12 @@ export interface DefaultConfig {
     cors: CorsConfig;
     email: EmailConfig;
 }
+
+export interface Config {
+    server?: ServerConfig;
+    mongoose: MongoConfig;
+    jwt?: JwtConfig;
+    auth: AuthConfig;
+    cors?: CorsConfig;
+    email: EmailConfig;
+}

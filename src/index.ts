@@ -12,8 +12,8 @@ import path from "path";
 import { extendResponse } from "./extensions/response";
 import connectDB from "./libs/mongo";
 
-import { Model, Mongoose } from "mongoose";
-import { AuthConfig, CorsConfig, DefaultConfig, EmailConfig, JwtConfig, MongoConfig, ServerConfig } from "./config";
+import { Model } from "mongoose";
+import { Config, DefaultConfig } from "./config";
 import { GoogleController } from "./controller/google.controller";
 import { LoginController } from "./controller/login.controller";
 import { UserController } from "./controller/me.controller";
@@ -41,43 +41,27 @@ export let OAuthStateModel: Model<IOAuthState>;
 export let OtpModel: Model<IOtp>;
 export let UserModel: Model<User>;
 
-interface OverrideConfig {
-  server?: ServerConfig;
-  mongoose?: MongoConfig;
-  jwt?: JwtConfig;
-  auth?: AuthConfig;
-  cors?: CorsConfig;
-  email?: EmailConfig;
-}
-
 export let appConfig: DefaultConfig;
 
-export async function start(app: Express, override: OverrideConfig) {
+export async function start(app: Express, config: Config) {
   appConfig = {
-    server: override.server || {
+    server: config.server || {
       host: "0.0.0.0",
       port: 8080,
       https: false,
     },
-    mongoose: override.mongoose || {
-      instance: new Mongoose(),
-    },
-    jwt: override.jwt || {
+    mongoose: config.mongoose,
+    jwt: config.jwt || {
       access_token_expires_in: "15m",
       refresh_token_expires_in: "90d",
       cookie_access_token_max_age: 1000 * 60 * 15,
       cookie_refresh_token_max_age: 1000 * 60 * 60 * 24 * 90,
     },
-    auth: override.auth || {
-      useOtp: false,
-    },
-    cors: override.cors || {
+    auth: config.auth,
+    cors: config.cors || {
       allowedHeaders: [],
     },
-    email: override.email || {
-      name: "App Name",
-      from: "app@example.com",
-    },
+    email: config.email,
   };
 
   await connectDB();
