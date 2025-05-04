@@ -80,10 +80,6 @@ npm install --save-dev tsconfig-paths
 }
 ```
 
-### Environment variables
-
-Create a `.env` file in your project root, following the `.env.example` file.
-
 #### Generate a new encryption key
 
 ```bash
@@ -154,9 +150,7 @@ Body: {
 npm install
 ```
 
-3. Create a `.env` file with your configuration
-
-4. Start development server:
+3. Start development server:
 
 ```bash
 npm run dev
@@ -227,16 +221,7 @@ This document explains how to set up Google OAuth authentication for the SEO AI 
 
 ### 3. Configure Environment Variables
 
-Add the following environment variables to your `.env` file:
-
-```
-GOOGLE_CLIENT_ID=your_client_id
-GOOGLE_CLIENT_SECRET=your_client_secret
-GOOGLE_REDIRECT_URI=https://example.com/auth/google/callback
-GOOGLE_AUTHENTICATED_REDIRECT_URL=https://example.com/authenticated
-GOOGLE_ERROR_REDIRECT_URL=https://example.com
-
-```
+Configure the client using the start app configuration.
 
 ### 4. MongoDB Integration
 
@@ -281,8 +266,8 @@ To fix this issue:
 
 1. Check your environment variables:
 
-   - Verify that `GOOGLE_REDIRECT_URI` in your `.env` file exactly matches one of the URIs you added to the authorized redirect URIs in Google Cloud Console
-   - If `GOOGLE_REDIRECT_URI` is not set, check the default value in your code (typically `http://localhost:8080/auth/google/callback` for development)
+   - Verify that `google_redirect_uri` exactly matches one of the URIs you added to the authorized redirect URIs in Google Cloud Console
+   - If `google_redirect_uri` is not set, check the default value in your code (typically `http://localhost:8080/auth/google/callback` for development)
 
 2. Check your Google Cloud Console configuration:
 
