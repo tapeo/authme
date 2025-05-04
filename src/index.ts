@@ -9,8 +9,8 @@ import express, { Express } from "express";
 import fs from "fs";
 import https from "https";
 import path from "path";
-import { extendResponse } from "./extensions/response";
 import connectDB from "./libs/mongo";
+import { extendResponse } from "./types/response";
 
 import { Model } from "mongoose";
 import { Config, DefaultConfig } from "./config";
@@ -65,6 +65,11 @@ export async function start(app: Express, config: Config) {
     },
     email: config.email,
     telegram: config.telegram,
+    google_auth: config.google_auth,
+    google_storage: config.google_storage,
+    firebase: config.firebase,
+    stripe: config.stripe,
+    openrouter: config.openrouter,
   };
 
   await connectDB();

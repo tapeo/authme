@@ -1,5 +1,5 @@
 import { Response } from "express";
-import { JsonTyped } from "../types/typed-response";
+import { JsonTyped } from "./typed-response";
 
 export function extendResponse(response: Response) {
   response.jsonTyped = function (data: JsonTyped) {

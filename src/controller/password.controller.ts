@@ -1,7 +1,8 @@
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import { Request, Response } from "express";
-import { Email } from "../extensions/email.extension";
+import { MailerSendExtension } from "../extensions/mailersend.extension";
+import { PlunkExtension } from "../extensions/plunk.extension";
 import { appConfig, UserModel } from "../index";
 
 export class PasswordController {
@@ -24,11 +25,8 @@ export class PasswordController {
 
     await user.save();
 
-    await Email.send({
-      from_email: appConfig?.email?.from,
-      to_email: user.email,
-      subject: "Password Reset Request",
-      html: `
+    const subject = "Password Reset Request";
+    const body = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <p>Hello,</p>
         
@@ -49,8 +47,32 @@ export class PasswordController {
           If you didn't make this request, you can safely ignore this email.
         </p>
       </div>
-    `,
-    });
+    `;
+
+    if (appConfig?.email?.provider === "plunk") {
+      await PlunkExtension.sendTransactional({
+        from: appConfig?.email?.from,
+        to: user.email,
+        subject: subject,
+        apiKey: appConfig?.email?.plunk!.api_key,
+        body: body,
+      });
+    } else {
+      await MailerSendExtension.sendEmail({
+        from: {
+          name: appConfig?.email?.name,
+          email: appConfig?.email?.from,
+        },
+        to: [
+          {
+            email: user.email,
+          },
+        ],
+        subject: subject,
+        apiKey: appConfig?.email?.mailersend!.api_key,
+        html: body,
+      });
+    }
 
     res
       .status(200)

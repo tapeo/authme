@@ -1,9 +1,9 @@
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import { Request, Response } from "express";
-import { Email } from "../extensions/email.extension";
+import { MailerSendExtension } from "../extensions/mailersend.extension";
 import { Telegram } from "../extensions/telegram.extension";
-import { appConfig, OtpModel } from "../index";
+import { appConfig, OtpModel, PlunkExtension } from "../index";
 import { setCookies } from "../libs/cookie";
 import { encrypt } from "../libs/crypto";
 import { generateAccessToken, generateRefreshToken } from "../libs/jwt";
@@ -46,11 +46,8 @@ export class SignupController {
       expires_at,
     });
 
-    await Email.send({
-      from_email: appConfig?.email?.from,
-      to_email: sanitizedEmail,
-      subject: "Email Verification",
-      html: `
+    const subject = "Email Verification";
+    const body = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <p>Welcome to ${appConfig?.email?.name}!</p>
         
@@ -66,9 +63,32 @@ export class SignupController {
           If you didn't request this, you can safely ignore this email.
         </p>
       </div>
-    `,
-    });
+    `;
 
+    if (appConfig?.email?.provider === "plunk") {
+      await PlunkExtension.sendTransactional({
+        from: appConfig?.email?.from,
+        to: sanitizedEmail,
+        subject: subject,
+        apiKey: appConfig?.email?.plunk!.api_key,
+        body: body,
+      });
+    } else {
+      await MailerSendExtension.sendEmail({
+        from: {
+          email: appConfig?.email?.from,
+          name: appConfig?.email?.name,
+        },
+        to: [
+          {
+            email: sanitizedEmail,
+          },
+        ],
+        subject: subject,
+        html: body,
+        apiKey: appConfig?.email?.mailersend!.api_key,
+      });
+    }
     return res.status(200).jsonTyped({
       status: "success",
       message: "OTP sent successfully",

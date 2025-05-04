@@ -38,22 +38,26 @@ export interface CorsConfig {
 export interface EmailConfig {
     name: string;
     from: string;
+    provider: "plunk" | "mailersend";
     plunk?: {
-        user: string;
-        pass: string;
+        api_key: string;
     };
     mailersend?: {
-        user: string;
-        pass: string;
+        api_key: string;
     };
 }
 
-export interface GoogleConfig {
+export interface GoogleAuthConfig {
     client_id: string;
     client_secret: string;
     redirect_uri: string;
     error_redirect_uri: string;
     authenticated_redirect_uri: string;
+}
+
+export interface StripeConfig {
+    secret_key: string;
+    webhook_secret: string;
 }
 
 export interface DefaultConfig {
@@ -65,13 +69,34 @@ export interface DefaultConfig {
     auth: AuthConfig;
     cors: CorsConfig;
     email: EmailConfig;
-    google?: GoogleConfig;
     telegram: TelegramConfig;
+    google_auth?: GoogleAuthConfig;
+    google_storage?: GoogleStorageConfig;
+    firebase?: FirebaseConfig;
+    stripe?: StripeConfig;
+    openrouter?: OpenRouterConfig;
 }
 
 export interface TelegramConfig {
     bot_token: string;
     chat_id: string;
+}
+
+export interface GoogleStorageConfig {
+    project_id: string;
+    bucket_name: string;
+    private_key: string;
+    client_email: string;
+}
+
+export interface FirebaseConfig {
+    project_id: string;
+    client_email: string;
+    private_key: string;
+}
+
+export interface OpenRouterConfig {
+    api_key: string;
 }
 
 export interface Config {
@@ -83,6 +108,10 @@ export interface Config {
     auth: AuthConfig;
     cors?: CorsConfig;
     email: EmailConfig;
-    google?: GoogleConfig;
+    google_auth?: GoogleAuthConfig;
+    google_storage?: GoogleStorageConfig;
+    firebase?: FirebaseConfig;
     telegram: TelegramConfig;
+    stripe?: StripeConfig;
+    openrouter?: OpenRouterConfig;
 }
