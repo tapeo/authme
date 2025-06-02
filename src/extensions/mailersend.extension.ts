@@ -38,11 +38,15 @@ export class MailerSendExtension {
 
         const statusCode = response.status;
         const responseHeaders = response.headers;
+
+        const responseText = await response.text();
+
         let responseData: any;
+
         try {
-            responseData = await response.json();
+            responseData = JSON.parse(responseText);
         } catch (e) {
-            responseData = await response.text();
+            responseData = responseText;
         }
 
         const messageId = responseHeaders.get('x-message-id');

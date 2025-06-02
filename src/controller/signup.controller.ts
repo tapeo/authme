@@ -74,7 +74,7 @@ export class SignupController {
         body: body,
       });
     } else {
-      await MailerSendExtension.sendEmail({
+      const response = await MailerSendExtension.sendEmail({
         from: {
           email: appConfig?.email?.from,
           name: appConfig?.email?.name,
@@ -88,6 +88,13 @@ export class SignupController {
         html: body,
         apiKey: appConfig?.email?.mailersend!.api_key,
       });
+
+      if (response.status !== 202) {
+        return res.status(400).jsonTyped({
+          status: "error",
+          message: "Failed to send email",
+        });
+      }
     }
     return res.status(200).jsonTyped({
       status: "success",
