@@ -36,6 +36,10 @@ export class MailerSendExtension {
             body: JSON.stringify(bodyParams),
         });
 
+        if (response.status !== 202) {
+            throw new Error(`Failed to send email: ${response.statusText}`);
+        }
+
         const statusCode = response.status;
         const responseHeaders = response.headers;
 
