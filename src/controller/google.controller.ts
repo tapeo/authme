@@ -254,8 +254,8 @@ export class GoogleController {
       status: "success",
       message: isNewUser ? 'User created successfully' : 'Login successful',
       data: {
-        accessToken: jwtAccessToken,
-        refreshToken: jwtRefreshToken,
+        access_token: jwtAccessToken,
+        refresh_token: jwtRefreshToken,
         user: {
           id: user._id.toString(),
           email: user.email,
