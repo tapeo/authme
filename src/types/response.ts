@@ -9,6 +9,13 @@ export function extendResponse(response: Response) {
 
 declare global {
   namespace Express {
+    interface Request {
+      jwt: {
+        user_id: string;
+        email: string;
+        payload: any;
+      } | undefined;
+    }
     interface Response {
       jsonTyped(data: JsonTyped): void;
     }

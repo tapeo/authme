@@ -69,9 +69,11 @@ const jwtDecodeMiddleware = async (
       });
     }
 
-    req.headers.id_user = idUser;
-    req.headers.user_id = idUser;
-    req.headers.email = email;
+    req.jwt = {
+      user_id: idUser,
+      email: email,
+      payload: payload,
+    };
 
     next();
   } catch (error) {

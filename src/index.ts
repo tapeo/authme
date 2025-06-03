@@ -86,8 +86,6 @@ export async function start(app: Express, config: Config) {
       "Content-Type",
       "Authorization",
       "Access-Control-Allow-Origin",
-      "id_user",
-      "user_id",
       ...(appConfig.cors?.allowed_headers || []),
     ],
   };

@@ -4,7 +4,15 @@ import { UserService } from "../services/user.service";
 
 export class UserController {
   public static meHandler = async (req: Request, res: Response) => {
-    const idUser = req.headers.user_id as string;
+    const idUser = req.jwt?.user_id;
+
+    if (!idUser) {
+      res.status(401).jsonTyped({
+        status: "error",
+        message: "Unauthorized",
+      });
+      return;
+    }
 
     const user = await UserService.getById(idUser, [
       "password",
@@ -28,7 +36,15 @@ export class UserController {
   };
 
   public static deleteMeHandler = async (req: Request, res: Response) => {
-    const idUser = req.headers.user_id as string;
+    const idUser = req.jwt?.user_id;
+
+    if (!idUser) {
+      res.status(401).jsonTyped({
+        status: "error",
+        message: "Unauthorized",
+      });
+      return;
+    }
 
     const user = await UserService.getById(idUser);
 

@@ -8,7 +8,7 @@ export const updateLastAccess = async (
     res: Response,
     next: NextFunction
 ) => {
-    const idUser = req.headers.user_id as string;
+    const idUser = req.jwt?.user_id;
 
     if (!idUser) {
         return next();

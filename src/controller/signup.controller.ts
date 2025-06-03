@@ -228,8 +228,8 @@ export class SignupController {
   ): Promise<void> => {
     const { email, password } = req.body;
 
-    const idUser = req.headers.user_id as string;
-    const jwtEmail = req.headers.email as string;
+    const idUser = req.jwt?.user_id;
+    const jwtEmail = req.jwt?.email;
 
     if (!idUser || !jwtEmail) {
       return res.status(401).jsonTyped({
