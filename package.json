@@ -1,6 +1,6 @@
 {
   "name": "@tapeo/authme",
-  "version": "2.10.0",
+  "version": "2.10.1",
   "description": "A TypeScript library for JWT authentication with MongoDB and Express.js. It provides a complete authentication system including local authentication, Google OAuth, password reset, and JWT token management.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
