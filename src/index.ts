@@ -121,6 +121,7 @@ export async function start(app: Express, config: Config) {
 
   app.get("/auth/google", GoogleController.auth);
   app.get("/auth/google/callback", GoogleController.callback);
+  app.post("/auth/google/mobile", GoogleController.mobileAuth);
 
   app.post("/auth/password/forgot", PasswordController.forgotPasswordHandler);
   app.get(

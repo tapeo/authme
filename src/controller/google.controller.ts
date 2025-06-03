@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import { Request, Response } from "express";
+import { OAuth2Client } from 'google-auth-library';
 import { appConfig } from "..";
 import { Telegram } from "../extensions/telegram.extension";
 import { setCookies } from "../libs/cookie";
@@ -162,4 +163,108 @@ export class GoogleController {
       res.redirect(appConfig.google_auth!.error_redirect_uri);
     }
   };
+
+  public static mobileAuth = async (req: Request, res: Response) => {
+    const { id_token } = req.body;
+
+    if (!id_token) {
+      res.status(400).jsonTyped({ status: "error", message: "ID token is required" });
+      return;
+    }
+
+    // Initialize Google OAuth2 client for token verification
+    const client = new OAuth2Client(appConfig.google_auth!.client_id);
+
+    // Verify the ID token
+    const ticket = await client.verifyIdToken({
+      idToken: id_token,
+      audience: appConfig.google_auth!.client_id,
+    });
+
+    const payload = ticket.getPayload();
+
+    if (!payload) {
+      res.status(400).jsonTyped({ status: "error", message: "Invalid token" });
+      return;
+    }
+
+    const email = payload.email;
+    const name = payload.name || null;
+    const pictureUrl = payload.picture || null;
+
+    if (!email) {
+      res.status(400).jsonTyped({ status: "error", message: "Email not provided by Google" });
+      return;
+    }
+
+    // Use your existing user logic
+    let user = await UserService.getUserByEmail(email);
+    let isNewUser = false;
+
+    if (!user) {
+      // Create new user with random password (same as your web flow)
+      const randomPassword = crypto.randomBytes(16).toString("hex");
+      const salt = await bcrypt.genSalt(10);
+      const passwordEncrypted = await bcrypt.hash(randomPassword, salt);
+
+      user = await UserService.post(email, passwordEncrypted);
+
+      if (!user) {
+        res.status(500).jsonTyped({ status: "error", message: "Failed to create user" });
+        return;
+      }
+
+      isNewUser = true;
+
+      // Send Telegram notification (same as your web flow)
+      await Telegram.send({
+        text: `New user registered with Google (Mobile): ${email} on ${req.headers.host}`,
+      });
+
+      // Update user profile if name or picture provided
+      if (name || pictureUrl) {
+        const updateData: any = {};
+        if (name) updateData.name = name;
+        if (pictureUrl) updateData.picture_url = pictureUrl;
+        await UserService.patch(user._id.toString(), updateData);
+      }
+    } else if (pictureUrl && !user.picture_url) {
+      // Update picture if not already set
+      await UserService.patch(user._id.toString(), {
+        picture_url: pictureUrl,
+      });
+    }
+
+    // Generate tokens (same as your web flow)
+    const jwtAccessToken = generateAccessToken(user._id.toString(), email);
+    const jwtRefreshToken = generateRefreshToken(user._id.toString(), email);
+    const encryptedRefreshToken = encrypt(jwtRefreshToken);
+
+    const refreshToken = await RefreshTokenService.post(
+      user._id.toString(),
+      encryptedRefreshToken
+    );
+
+    if (!refreshToken) {
+      res.status(500).jsonTyped({ status: "error", message: "Failed to create refresh token" });
+      return;
+    }
+
+    res.status(200).jsonTyped({
+      status: "success",
+      message: isNewUser ? 'User created successfully' : 'Login successful',
+      data: {
+        accessToken: jwtAccessToken,
+        refreshToken: jwtRefreshToken,
+        user: {
+          id: user._id.toString(),
+          email: user.email,
+          name: user.name,
+          pictureUrl: user.picture_url,
+          createdAt: user.created_at
+        }
+      }
+    });
+  };
+
 }
