@@ -9,7 +9,7 @@
     "src/public"
   ],
   "scripts": {
-    "dev": "nodemon --watch src --ext ts,json --exec 'ts-node -r tsconfig-paths/register src/index.ts || exit 1'",
+    "dev": "nodemon src/development.ts",
     "build": "tsc && copyfiles -u 2 \"src/public/*.html\" dist/public",
     "prepare": "npm run build"
   },

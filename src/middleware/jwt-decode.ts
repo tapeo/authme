@@ -21,8 +21,8 @@ const jwtDecodeMiddleware = async (
   }
 
   const accessTokenAuthorization = req.headers.authorization?.split(" ")[1];
-  const accessTokenCookie = req.cookies.access_token;
-  const refreshTokenCookie = req.cookies.refresh_token;
+  const accessTokenCookie = req.cookies?.access_token;
+  const refreshTokenCookie = req.cookies?.refresh_token;
 
   const accessToken =
     accessTokenAuthorization ?? accessTokenCookie;
