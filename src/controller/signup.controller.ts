@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import { Request, Response } from "express";
+import { MongoServerError } from "mongodb";
 import { MailerSendExtension } from "../extensions/mailersend.extension";
 import { Telegram } from "../extensions/telegram.extension";
 import { appConfig, OtpModel, PlunkExtension } from "../index";
@@ -8,6 +9,7 @@ import { setCookies } from "../libs/cookie";
 import { encrypt } from "../libs/crypto";
 import { generateAccessToken, generateRefreshToken } from "../libs/jwt";
 import { OtpPurpose } from "../model/otp.model";
+import { User } from "../model/user.model";
 import { RefreshTokenService } from "../services/refresh-token.service";
 import { UserService } from "../services/user.service";
 
@@ -222,146 +224,67 @@ export class SignupController {
     });
   };
 
-  public static mergeAnonymousAccountHandler = async (
-    req: Request,
-    res: Response
-  ): Promise<void> => {
-    const { email, password } = req.body;
-
-    const idUser = req.jwt?.user_id;
-    const jwtEmail = req.jwt?.email;
-
-    if (!idUser || !jwtEmail) {
-      return res.status(401).jsonTyped({
-        status: "error",
-        message: "Unauthorized",
-      });
-    }
-
-    if (!email || !password) {
-      return res.status(400).jsonTyped({
-        status: "error",
-        message: "Email and password are required",
-      });
-    }
-
-    const sanitizedEmail = email.trim().toLowerCase();
-
-    const isValidEmail = (email: string) => {
-      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    };
-
-    if (!isValidEmail(sanitizedEmail)) {
-      return res.status(400).jsonTyped({
-        status: "error",
-        message: "Invalid email",
-      });
-    }
-
-    const existingUser = await UserService.getUserByEmail(sanitizedEmail);
-    if (existingUser) {
-      return res.status(400).jsonTyped({
-        status: "error",
-        message: "Email already in use",
-      });
-    }
-
-    const anonymousUser = await UserService.getById(idUser);
-    if (!anonymousUser) {
-      return res.status(404).jsonTyped({
-        status: "error",
-        message: "User not found",
-      });
-    }
-
-    if (!anonymousUser.is_anonymous) {
-      return res.status(400).jsonTyped({
-        status: "error",
-        message: "Only anonymous accounts can be merged",
-      });
-    }
-
-    if (anonymousUser.email !== jwtEmail) {
-      return res.status(401).jsonTyped({
-        status: "error",
-        message: "You can only merge your own anonymous account",
-      });
-    }
-
-    const passwordEncrypted = await bcrypt.hash(password, 10);
-
-    await UserService.patch(idUser, {
-      email: sanitizedEmail,
-      password: passwordEncrypted,
-      is_anonymous: false,
-    });
-
-    const accessToken = generateAccessToken(idUser, sanitizedEmail);
-    const refreshToken = generateRefreshToken(idUser, sanitizedEmail);
-    const encryptedRefreshToken = encrypt(refreshToken);
-
-    const posted = await RefreshTokenService.post(
-      idUser,
-      encryptedRefreshToken
-    );
-    if (!posted) {
-      res
-        .status(401)
-        .json({ message: "Unauthorized, no refresh tokens can be posted" });
-      return;
-    }
-
-    setCookies(accessToken, refreshToken, res);
-
-    await Telegram.send({
-      text: `Anonymous user merged to regular account: ${sanitizedEmail} on ${req.headers.host}`,
-    });
-
-    return res.status(200).jsonTyped({
-      status: "success",
-      message: "Account merged successfully",
-      data: {
-        id: idUser,
-        access_token: accessToken,
-        refresh_token: refreshToken,
-      },
-    });
-  };
-
   private static createUserAccount = async (
     email: string,
     password: string,
     req: Request,
     res: Response,
-    isAnonymous: boolean = false
   ): Promise<void> => {
-    const passwordEncrypted = await bcrypt.hash(password, 10);
-    const sanitizedEmail = email.trim().toLowerCase();
+    try {
+      const passwordEncrypted = await bcrypt.hash(password, 10);
+      const sanitizedEmail = email.trim().toLowerCase();
 
-    const user = await UserService.post(
-      sanitizedEmail,
-      passwordEncrypted,
-      isAnonymous
-    );
+      let user: User | null = null;
+      let isAnonymous = false;
 
-    if (!user) {
-      return res.status(400).jsonTyped({
-        status: "error",
-        message: "Failed to create user, user not found",
+      const idUser = req.jwt?.user_id;
+      if (idUser) {
+        user = await UserService.getById(idUser);
+        isAnonymous = user?.is_anonymous ?? false;
+      }
+
+      if (user?.is_anonymous === true) {
+        user = await UserService.patch(user._id.toString(), {
+          email: sanitizedEmail,
+          password: passwordEncrypted,
+          is_anonymous: false,
+        });
+      } else {
+        user = await UserService.post(
+          sanitizedEmail,
+          passwordEncrypted,
+          false,
+        );
+      }
+
+      if (!user) {
+        return res.status(400).jsonTyped({
+          status: "error",
+          message: "Failed to create user, user not found",
+        });
+      }
+
+      await Telegram.send({
+        text: `New user registered: ${sanitizedEmail} on ${req.headers.host} ${isAnonymous ? " (anonymous)" : ""}`,
       });
+
+      return res.status(200).jsonTyped({
+        status: "success",
+        message: "Registration successful, now you can login",
+        data: {
+          id: user._id.toString(),
+          merged_anonymous: isAnonymous,
+        },
+      });
+    } catch (error) {
+      if (error instanceof MongoServerError && error.code === 11000) {
+        return res.status(400).jsonTyped({
+          status: "error",
+          message: "Email already in use",
+        });
+      }
+      throw error;
     }
-
-    await Telegram.send({
-      text: `New user registered: ${sanitizedEmail} on ${req.headers.host}`,
-    });
-
-    return res.status(200).jsonTyped({
-      status: "success",
-      message: "Registration successful, now you can login",
-      data: {
-        id: user._id.toString(),
-      },
-    });
   };
 
   private static generateOTP = (length: number = 6): string => {

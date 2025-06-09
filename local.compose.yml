@@ -1,0 +1,7 @@
+name: authme-mongodb
+services:
+  mongodb:
+    image: mongodb/mongodb-community-server:latest
+    container_name: authme-mongodb
+    ports:
+      - "4006:27017"

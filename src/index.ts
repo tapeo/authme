@@ -22,6 +22,7 @@ import { RefreshTokenController } from "./controller/refresh-token.controller";
 import { SignupController } from "./controller/signup.controller";
 import jwtDecodeMiddleware from "./middleware/jwt-decode";
 import { updateLastAccess } from "./middleware/last-access.middleware";
+import signupMiddleware from "./middleware/signup.middleware";
 import registerOAuthStateModel, {
   IOAuthState,
 } from "./model/oauth-state.model";
@@ -102,14 +103,8 @@ export async function start(app: Express, config: Config) {
 
   // Setup routes
   app.post("/auth/login", LoginController.login);
-  app.post("/auth/signup", appConfig.auth?.use_otp === true ? SignupController.signupWithVerificationHandler : SignupController.signupWithoutVerificationHandler);
+  app.post("/auth/signup", signupMiddleware, appConfig.auth?.use_otp === true ? SignupController.signupWithVerificationHandler : SignupController.signupWithoutVerificationHandler);
   app.post("/auth/signup/anonymous", SignupController.signupAnonymousHandler);
-  app.post(
-    "/auth/signup/merge",
-    jwtDecodeMiddleware,
-    updateLastAccess,
-    SignupController.mergeAnonymousAccountHandler
-  );
   app.post(
     "/auth/send-email-verification",
     SignupController.sendEmailVerificationHandler
