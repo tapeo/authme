@@ -12,7 +12,7 @@ import path from "path";
 import connectDB from "./libs/mongo";
 import { extendResponse } from "./types/response";
 
-import { Model } from "mongoose";
+import { Model, Schema } from "mongoose";
 import { Config, DefaultConfig } from "./config";
 import { GoogleController } from "./controller/google.controller";
 import { LoginController } from "./controller/login.controller";
@@ -41,6 +41,7 @@ const publicPath = path.join(dirname(__filename), "public");
 export let OAuthStateModel: Model<IOAuthState>;
 export let OtpModel: Model<IOtp>;
 export let UserModel: Model<User>;
+export let UserSchema: Schema<User>;
 
 export let appConfig: DefaultConfig;
 
@@ -77,7 +78,10 @@ export async function start(app: Express, config: Config) {
 
   OAuthStateModel = registerOAuthStateModel(appConfig.mongoose.instance);
   OtpModel = registerOtpModel(appConfig.mongoose.instance);
-  UserModel = registerUserModel(appConfig.mongoose.instance);
+
+  const userModelRegistration = registerUserModel(appConfig.mongoose.instance);
+  UserModel = userModelRegistration.UserModel;
+  UserSchema = userModelRegistration.UserSchema;
 
   const corsOptions = {
     origin: appConfig.origin,

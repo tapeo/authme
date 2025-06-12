@@ -1,4 +1,4 @@
-import { Mongoose } from "mongoose";
+import { Model, Mongoose, Schema } from "mongoose";
 import { appConfig } from "..";
 
 export interface RefreshToken {
@@ -24,7 +24,7 @@ export interface User {
   last_access?: Date | null;
 }
 
-export function registerUserModel(mongooseInstance: Mongoose) {
+export function registerUserModel(mongooseInstance: Mongoose): { UserModel: Model<User>, UserSchema: Schema<User> } {
   const RefreshTokenSchema = new mongooseInstance!.Schema<RefreshToken>({
     expires_at: {
       type: Date,
@@ -106,7 +106,7 @@ export function registerUserModel(mongooseInstance: Mongoose) {
 
   const UserModel = mongooseInstance!.model("User", UserSchema);
 
-  return UserModel;
+  return { UserModel, UserSchema };
 }
 
 export default registerUserModel;
