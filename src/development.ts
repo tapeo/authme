@@ -23,7 +23,6 @@ start(app as any, {
     },
     mongoose: {
         uri: process.env.MONGO_URI || "mongodb://127.0.0.1:4005",
-        replica_set: "rs0",
         instance: mongoose,
     },
     auth: {
