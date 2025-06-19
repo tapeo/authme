@@ -1,7 +1,40 @@
 name: authme-mongodb
+
 services:
-  mongodb:
-    image: mongodb/mongodb-community-server:latest
+  mongo1:
+    image: mongo:7.0
+    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27017"]
     container_name: authme-mongodb
     ports:
-      - "4006:27017"
+      - "4005:27017"
+    networks:
+      - mongodb-network
+    healthcheck:
+      test: |
+        echo "
+        try { 
+          rs.status() 
+        } catch (err) { 
+          rs.initiate({
+            _id: 'rs0',
+            members: [
+              { _id: 0, host: 'mongo1:27017' }
+            ]
+          }) 
+        }" | mongosh --port 27017 --quiet
+      interval: 5s
+      timeout: 30s
+      start_period: 0s
+      start_interval: 1s
+      retries: 30
+    volumes:
+      - "mongo_data:/data/db"
+      - "mongo_config:/data/configdb"
+
+networks:
+  mongodb-network:
+    driver: bridge
+
+volumes:
+  mongo_data:
+  mongo_config:

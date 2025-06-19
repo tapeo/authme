@@ -1,6 +1,6 @@
 import express from "express";
 import mongoose from "mongoose";
-import { start } from "./index";
+import { start, UserModel } from "./index";
 import jwtDecodeMiddleware from "./middleware/jwt-decode";
 
 const app = express();
@@ -22,7 +22,8 @@ start(app as any, {
         chat_id: process.env.TELEGRAM_CHAT_ID!,
     },
     mongoose: {
-        uri: process.env.MONGO_URI!,
+        uri: process.env.MONGO_URI || "mongodb://127.0.0.1:4005",
+        replica_set: "rs0",
         instance: mongoose,
     },
     auth: {
@@ -46,4 +47,30 @@ start(app as any, {
         error_redirect_uri: process.env.GOOGLE_ERROR_REDIRECT_URL!,
         authenticated_redirect_uri: process.env.GOOGLE_AUTHENTICATED_REDIRECT_URL!,
     },
+});
+
+app.get("/test-mongoose-transaction", async (req, res) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    try {
+        await UserModel.deleteMany({});
+        const user = await UserModel.create([
+            {
+                name: "John Doe",
+                email: "john.doe@example.com",
+                password: "password",
+            },
+        ]);
+        res.jsonTyped({
+            status: "success",
+            data: {
+                user,
+            },
+        });
+    } catch (error) {
+        await session.abortTransaction();
+        throw error;
+    } finally {
+        await session.endSession();
+    }
 });
