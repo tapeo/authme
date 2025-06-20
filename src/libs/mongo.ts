@@ -16,8 +16,8 @@ export const connectDB = async () => {
   const url = new URL(appConfig.mongoose.uri);
   url.pathname = `/${databaseName}`;
 
-  if (appConfig.env === "development") {
-    url.searchParams.set("directConnection", "true");
+  if (appConfig.mongoose.directConnection) {
+    url.searchParams.set("directConnection", appConfig.mongoose.directConnection.toString());
   }
 
   const uri = url.toString();
