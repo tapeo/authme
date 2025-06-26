@@ -49,29 +49,36 @@ export class PasswordController {
       </div>
     `;
 
-    if (appConfig?.email?.provider === "plunk") {
-      await PlunkExtension.sendTransactional({
-        from: appConfig?.email?.from,
-        to: user.email,
-        subject: subject,
-        apiKey: appConfig?.email?.plunk!.api_key,
-        body: body,
-      });
-    } else {
-      await MailerSendExtension.sendEmail({
-        from: {
-          name: appConfig?.email?.name,
-          email: appConfig?.email?.from,
-        },
-        to: [
-          {
-            email: user.email,
+    try {
+      if (appConfig?.email?.provider === "plunk") {
+        await PlunkExtension.sendTransactional({
+          from: appConfig?.email?.from,
+          to: user.email,
+          subject: subject,
+          apiKey: appConfig?.email?.plunk!.api_key,
+          body: body,
+        });
+      } else {
+        await MailerSendExtension.sendEmail({
+          from: {
+            name: appConfig?.email?.name,
+            email: appConfig?.email?.from,
           },
-        ],
-        subject: subject,
-        apiKey: appConfig?.email?.mailersend!.api_key,
-        html: body,
-      });
+          to: [
+            {
+              email: user.email,
+            },
+          ],
+          subject: subject,
+          apiKey: appConfig?.email?.mailersend!.api_key,
+          html: body,
+        });
+      }
+    } catch {
+      res
+        .status(500)
+        .jsonTyped({ status: "error", message: "Error in sending email" });
+      return;
     }
 
     res

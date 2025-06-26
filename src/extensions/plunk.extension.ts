@@ -63,13 +63,8 @@ export interface PlunkSendTransactionalEmailResponseData {
   timestamp: string;
 }
 
-export interface PlunkSendTransactionalEmailResponse {
-  status: number;
-  data: PlunkSendTransactionalEmailResponseData | any;
-}
-
 export class PlunkExtension {
-  static async sendTransactional(params: PlunkSendTransactionalEmailRequest): Promise<PlunkSendTransactionalEmailResponse> {
+  static async sendTransactional(params: PlunkSendTransactionalEmailRequest): Promise<void> {
     const response = await fetch("https://api.useplunk.com/v1/send", {
       method: "POST",
       headers: {
@@ -79,13 +74,14 @@ export class PlunkExtension {
       body: JSON.stringify(params),
     });
 
-    const statusCode = response.status;
     const json = await response.json();
 
-    return {
-      status: statusCode,
-      data: json,
-    };
+    const success = json.success;
+
+    if (!success) {
+      console.log(json);
+      throw new Error(`Failed to send email: ${json.message}`);
+    }
   }
 
   static async createCampaign(params: PlunkCreateCampaignRequest): Promise<PlunkCreateCampaignResponse> {

@@ -16,15 +16,8 @@ export interface MailerSendSendEmailRequest {
     apiKey: string;
 }
 
-export interface MailerSendSendEmailResponse {
-    status: number;
-    headers: Headers;
-    data: any;
-    messageId?: string | null;
-}
-
 export class MailerSendExtension {
-    static async sendEmail(params: MailerSendSendEmailRequest): Promise<MailerSendSendEmailResponse> {
+    static async sendEmail(params: MailerSendSendEmailRequest): Promise<void> {
         const { apiKey, ...bodyParams } = params;
 
         const response = await fetch("https://api.mailersend.com/v1/email", {
@@ -37,29 +30,8 @@ export class MailerSendExtension {
         });
 
         if (response.status !== 202) {
+            console.log(response);
             throw new Error(`Failed to send email: ${response.statusText}`);
         }
-
-        const statusCode = response.status;
-        const responseHeaders = response.headers;
-
-        const responseText = await response.text();
-
-        let responseData: any;
-
-        try {
-            responseData = JSON.parse(responseText);
-        } catch (e) {
-            responseData = responseText;
-        }
-
-        const messageId = responseHeaders.get('x-message-id');
-
-        return {
-            status: statusCode,
-            headers: responseHeaders,
-            data: responseData,
-            messageId: messageId
-        };
     }
 }

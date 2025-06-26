@@ -67,30 +67,38 @@ export class SignupController {
       </div>
     `;
 
-    if (appConfig?.email?.provider === "plunk") {
-      await PlunkExtension.sendTransactional({
-        from: appConfig?.email?.from,
-        to: sanitizedEmail,
-        subject: subject,
-        apiKey: appConfig?.email?.plunk!.api_key,
-        body: body,
-      });
-    } else {
-      await MailerSendExtension.sendEmail({
-        from: {
-          email: appConfig?.email?.from,
-          name: appConfig?.email?.name,
-        },
-        to: [
-          {
-            email: sanitizedEmail,
+    try {
+      if (appConfig?.email?.provider === "plunk") {
+        await PlunkExtension.sendTransactional({
+          from: appConfig?.email?.from,
+          to: sanitizedEmail,
+          subject: subject,
+          apiKey: appConfig?.email?.plunk!.api_key,
+          body: body,
+        });
+      } else {
+        await MailerSendExtension.sendEmail({
+          from: {
+            email: appConfig?.email?.from,
+            name: appConfig?.email?.name,
           },
-        ],
-        subject: subject,
-        html: body,
-        apiKey: appConfig?.email?.mailersend!.api_key,
-      });
+          to: [
+            {
+              email: sanitizedEmail,
+            },
+          ],
+          subject: subject,
+          html: body,
+          apiKey: appConfig?.email?.mailersend!.api_key,
+        });
+      }
+    } catch {
+      res
+        .status(500)
+        .jsonTyped({ status: "error", message: "Error in sending email" });
+      return;
     }
+
     return res.status(200).jsonTyped({
       status: "success",
       message: "OTP sent successfully",
