@@ -1,4 +1,5 @@
-import { Mongoose } from "mongoose";
+import { Model, Mongoose } from "mongoose";
+import { BaseUser } from "./dist/types/base-user";
 
 export interface ServerConfig {
     host: string;
@@ -76,6 +77,7 @@ export interface DefaultConfig {
     firebase?: FirebaseConfig;
     stripe?: StripeConfig;
     openrouter?: OpenRouterConfig;
+    userModel: Model<BaseUser>;
 }
 
 export interface TelegramConfig {
@@ -115,4 +117,5 @@ export interface Config {
     telegram: TelegramConfig;
     stripe?: StripeConfig;
     openrouter?: OpenRouterConfig;
+    userModel: Model<BaseUser>;
 }

@@ -1,4 +1,4 @@
-import { UserModel } from "..";
+import { BaseUserModel } from "..";
 import { User } from "../types/user";
 
 export class UserService {
@@ -22,7 +22,7 @@ export class UserService {
       ];
     }
 
-    const users = await UserModel.find(query);
+    const users = await BaseUserModel.find(query);
 
     return users;
   };
@@ -31,7 +31,7 @@ export class UserService {
     id: string,
     ignore: string[] = []
   ): Promise<User | null> => {
-    const user = await UserModel.findById(id).select(
+    const user = await BaseUserModel.findById(id).select(
       ignore.map((field) => `-${field}`).join(" ")
     );
 
@@ -43,7 +43,7 @@ export class UserService {
   ): Promise<User | null> => {
     const emailSanitized = email.trim();
 
-    const user = await UserModel.findOne({ email: emailSanitized });
+    const user = await BaseUserModel.findOne({ email: emailSanitized });
 
     return user;
   };
@@ -53,7 +53,7 @@ export class UserService {
     passwordEncrypted: string,
     isAnonymous: boolean = false
   ): Promise<User | null> => {
-    const user = await UserModel.create({
+    const user = await BaseUserModel.create({
       email,
       password: passwordEncrypted,
       is_anonymous: isAnonymous,
@@ -66,7 +66,7 @@ export class UserService {
     idUser: string,
     data: any
   ): Promise<User | null> => {
-    const user = await UserModel.findByIdAndUpdate(idUser, data, {
+    const user = await BaseUserModel.findByIdAndUpdate(idUser, data, {
       new: true,
     });
 

@@ -3,7 +3,7 @@ import crypto from "crypto";
 import { Request, Response } from "express";
 import { MailerSendExtension } from "../extensions/mailersend.extension";
 import { PlunkExtension } from "../extensions/plunk.extension";
-import { appConfig, UserModel } from "../index";
+import { appConfig, BaseUserModel } from "../index";
 
 export class PasswordController {
   public static forgotPasswordHandler = async (req: Request, res: Response) => {
@@ -11,7 +11,7 @@ export class PasswordController {
 
     const sanitizedEmail = email.trim().toLowerCase();
 
-    const user = await UserModel.findOne({ email: sanitizedEmail });
+    const user = await BaseUserModel.findOne({ email: sanitizedEmail });
     if (!user) {
       return res
         .status(404)
@@ -88,7 +88,7 @@ export class PasswordController {
 
   public static tokenPasswordHandler = async (req: Request, res: Response) => {
     try {
-      const user = await UserModel.findOne({
+      const user = await BaseUserModel.findOne({
         reset_password_token: req.params.token,
         reset_password_expires: { $gt: Date.now() },
       });
@@ -111,7 +111,7 @@ export class PasswordController {
   public static updatePasswordHandler = async (req: Request, res: Response) => {
     const { token } = req.body;
 
-    const user = await UserModel.findOne({
+    const user = await BaseUserModel.findOne({
       reset_password_token: token,
       reset_password_expires: { $gt: Date.now() },
     });

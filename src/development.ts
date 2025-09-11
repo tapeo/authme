@@ -1,6 +1,6 @@
 import express from "express";
 import mongoose from "mongoose";
-import { UserModel, start } from "./index";
+import { BaseUserModel, start } from "./index";
 import jwtDecodeMiddleware from "./middleware/jwt-decode";
 
 const app = express();
@@ -46,14 +46,15 @@ start(app as any, {
         error_redirect_uri: process.env.GOOGLE_ERROR_REDIRECT_URL!,
         authenticated_redirect_uri: process.env.GOOGLE_AUTHENTICATED_REDIRECT_URL!,
     },
+    userModel: BaseUserModel,
 });
 
 app.get("/test-mongoose-transaction", async (req, res) => {
     const session = await mongoose.startSession();
     session.startTransaction();
     try {
-        await UserModel.deleteMany({});
-        const user = await UserModel.create([
+        await BaseUserModel.deleteMany({});
+        const user = await BaseUserModel.create([
             {
                 name: "John Doe",
                 email: "john.doe@example.com",
