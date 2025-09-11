@@ -42,6 +42,14 @@ const baseUserSchema = new Schema<User>({
     type: Date,
     default: null,
   },
+  created_at: {
+    type: Date,
+    default: null,
+  },
+  updated_at: {
+    type: Date,
+    default: null,
+  },
 });
 
 baseUserSchema.index({ email: 1 }, { unique: true });

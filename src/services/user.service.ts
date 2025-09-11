@@ -57,6 +57,7 @@ export class UserService {
       email,
       password: passwordEncrypted,
       is_anonymous: isAnonymous,
+      created_at: new Date(),
     });
 
     return user;

@@ -10,4 +10,6 @@ export interface User {
   refresh_tokens: RefreshToken[];
   is_anonymous?: boolean;
   last_access?: Date;
+  created_at?: Date;
+  updated_at?: Date;
 }
