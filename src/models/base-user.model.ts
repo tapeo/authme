@@ -16,10 +16,6 @@ export function registerBaseUserModel(mongooseInstance: Mongoose): Model<BaseUse
   });
 
   const baseUserSchema = new mongooseInstance!.Schema<BaseUser>({
-    _id: {
-      type: mongooseInstance.Schema.Types.ObjectId,
-      auto: true,
-    },
     email: {
       type: String,
       required: true,
