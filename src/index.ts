@@ -16,13 +16,10 @@ import { Model } from "mongoose";
 import { Config, DefaultConfig } from "./config";
 import { GoogleController } from "./controller/google.controller";
 import { LoginController } from "./controller/login.controller";
-import { UserController } from "./controller/me.controller";
 import { PasswordController } from "./controller/password.controller";
 import { RefreshTokenController } from "./controller/refresh-token.controller";
 import { SignupController } from "./controller/signup.controller";
 import { BaseUser } from "./dist/types/base-user";
-import jwtDecodeMiddleware from "./middleware/jwt-decode";
-import { updateLastAccess } from "./middleware/last-access.middleware";
 import signupMiddleware from "./middleware/signup.middleware";
 import registerOAuthStateModel, {
   IOAuthState,
@@ -123,9 +120,6 @@ export async function start(app: Express, config: Config) {
     PasswordController.tokenPasswordHandler
   );
   app.post("/auth/password/update", PasswordController.updatePasswordHandler);
-
-  app.get("/user", jwtDecodeMiddleware, updateLastAccess, UserController.meHandler);
-  app.delete("/user", jwtDecodeMiddleware, updateLastAccess, UserController.deleteMeHandler);
 
   app.get("/auth/reset-password.html", (req, res) => {
     res.sendFile(publicPath + "/reset-password.html");
