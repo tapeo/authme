@@ -1,5 +1,5 @@
-import { BaseUserModel } from "..";
-import { BaseUser } from "../types/base-user";
+import { UserModel } from "..";
+import { User } from "../types/user";
 
 export class UserService {
   public static get = async ({
@@ -8,7 +8,7 @@ export class UserService {
   }: {
     type?: string;
     search?: string;
-  }): Promise<BaseUser[]> => {
+  }): Promise<User[]> => {
     const query: any = {};
 
     if (type) {
@@ -22,7 +22,7 @@ export class UserService {
       ];
     }
 
-    const users = await BaseUserModel.find(query);
+    const users = await UserModel.find(query);
 
     return users;
   };
@@ -30,8 +30,8 @@ export class UserService {
   public static getById = async (
     id: string,
     ignore: string[] = []
-  ): Promise<BaseUser | null> => {
-    const user = await BaseUserModel.findById(id).select(
+  ): Promise<User | null> => {
+    const user = await UserModel.findById(id).select(
       ignore.map((field) => `-${field}`).join(" ")
     );
 
@@ -40,10 +40,10 @@ export class UserService {
 
   public static getUserByEmail = async (
     email: string
-  ): Promise<BaseUser | null> => {
+  ): Promise<User | null> => {
     const emailSanitized = email.trim();
 
-    const user = await BaseUserModel.findOne({ email: emailSanitized });
+    const user = await UserModel.findOne({ email: emailSanitized });
 
     return user;
   };
@@ -52,8 +52,8 @@ export class UserService {
     email: string,
     passwordEncrypted: string,
     isAnonymous: boolean = false
-  ): Promise<BaseUser | null> => {
-    const user = await BaseUserModel.create({
+  ): Promise<User | null> => {
+    const user = await UserModel.create({
       email,
       password: passwordEncrypted,
       is_anonymous: isAnonymous,
@@ -65,8 +65,8 @@ export class UserService {
   public static patch = async (
     idUser: string,
     data: any
-  ): Promise<BaseUser | null> => {
-    const user = await BaseUserModel.findByIdAndUpdate(idUser, data, {
+  ): Promise<User | null> => {
+    const user = await UserModel.findByIdAndUpdate(idUser, data, {
       new: true,
     });
 

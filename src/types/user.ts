@@ -1,6 +1,6 @@
 import { RefreshToken } from "./refresh-token";
 
-export interface BaseUser {
+export interface User {
   _id?: string;
   email: string;
   password: string;

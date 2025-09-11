@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { BaseUserModel } from "..";
+import { UserModel } from "..";
 
 const THROTTLE_INTERVAL_MS = 15 * 60 * 1000;
 
@@ -17,7 +17,7 @@ export const updateLastAccess = async (
     try {
         const now = new Date();
 
-        const user = await BaseUserModel.findById(idUser).select("last_access");
+        const user = await UserModel.findById(idUser).select("last_access");
 
         if (!user) {
             return next();
@@ -27,7 +27,7 @@ export const updateLastAccess = async (
         const timeDifference = now.getTime() - lastAccessTime;
 
         if (timeDifference > THROTTLE_INTERVAL_MS) {
-            await BaseUserModel.findByIdAndUpdate(idUser, { last_access: now });
+            await UserModel.findByIdAndUpdate(idUser, { last_access: now });
         }
     } catch (error) {
         console.error(

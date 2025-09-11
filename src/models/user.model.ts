@@ -1,9 +1,9 @@
 import { Model, Mongoose } from "mongoose";
 import { appConfig } from "..";
-import { BaseUser } from "../types/base-user";
 import { RefreshToken } from "../types/refresh-token";
+import { User } from "../types/user";
 
-export function registerBaseUserModel(mongooseInstance: Mongoose): Model<BaseUser> {
+export function registerUserModel(mongooseInstance: Mongoose): Model<User> {
   const RefreshTokenSchema = new mongooseInstance!.Schema<RefreshToken>({
     expires_at: {
       type: Date,
@@ -15,7 +15,7 @@ export function registerBaseUserModel(mongooseInstance: Mongoose): Model<BaseUse
     },
   });
 
-  const baseUserSchema = new mongooseInstance!.Schema<BaseUser>({
+  const userSchema = new mongooseInstance!.Schema<User>({
     email: {
       type: String,
       required: true,
@@ -45,24 +45,24 @@ export function registerBaseUserModel(mongooseInstance: Mongoose): Model<BaseUse
     },
   });
 
-  baseUserSchema.index({ email: 1 }, { unique: true });
+  userSchema.index({ email: 1 }, { unique: true });
 
-  baseUserSchema.pre("save", async function (next) {
+  userSchema.pre("save", async function (next) {
     if (appConfig?.mongoose?.user_schema?.pre) {
       appConfig.mongoose.user_schema.pre(this as any);
     }
     next();
   });
 
-  baseUserSchema.post("save", async function (doc) {
+  userSchema.post("save", async function (doc) {
     if (appConfig?.mongoose?.user_schema?.post) {
       appConfig.mongoose.user_schema.post(doc as any);
     }
   });
 
-  const BaseUserModel: Model<BaseUser> = mongooseInstance!.model("User", baseUserSchema);
+  const UserModel: Model<User> = mongooseInstance!.model("User", userSchema);
 
-  return BaseUserModel;
+  return UserModel;
 }
 
-export default registerBaseUserModel;
+export default registerUserModel;

@@ -23,12 +23,12 @@ import { SignupController } from "./controller/signup.controller";
 import jwtDecodeMiddleware from "./middleware/jwt-decode";
 import { updateLastAccess } from "./middleware/last-access.middleware";
 import signupMiddleware from "./middleware/signup.middleware";
-import registerBaseUserModel from "./models/base-user.model";
 import registerOAuthStateModel, {
   IOAuthState,
 } from "./models/oauth-state.model";
 import registerOtpModel, { IOtp } from "./models/otp.model";
-import { BaseUser } from "./types/base-user";
+import { registerUserModel } from "./models/user.model";
+import { User } from "./types/user";
 
 export * from "./config";
 export * from "./extensions";
@@ -41,7 +41,7 @@ const publicPath = path.join(dirname(__filename), "public");
 
 export let OAuthStateModel: Model<IOAuthState>;
 export let OtpModel: Model<IOtp>;
-export let BaseUserModel: Model<BaseUser>;
+export let UserModel: Model<User>;
 
 export let appConfig: DefaultConfig;
 
@@ -78,7 +78,7 @@ export async function start(app: Express, config: Config) {
 
   OAuthStateModel = registerOAuthStateModel(appConfig.mongoose.instance);
   OtpModel = registerOtpModel(appConfig.mongoose.instance);
-  BaseUserModel = registerBaseUserModel(appConfig.mongoose.instance);
+  UserModel = registerUserModel(appConfig.mongoose.instance);
 
   const corsOptions = {
     origin: appConfig.origin,

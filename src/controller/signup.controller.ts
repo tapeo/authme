@@ -11,7 +11,7 @@ import { generateAccessToken, generateRefreshToken } from "../libs/jwt";
 import { OtpPurpose } from "../models/otp.model";
 import { RefreshTokenService } from "../services/refresh-token.service";
 import { UserService } from "../services/user.service";
-import { BaseUser } from "../types/base-user";
+import { User } from "../types/user";
 
 export class SignupController {
   private static expiresAt = 10 * 60 * 1000;
@@ -242,7 +242,7 @@ export class SignupController {
       const passwordEncrypted = await bcrypt.hash(password, 10);
       const sanitizedEmail = email.trim().toLowerCase();
 
-      let user: BaseUser | null = null;
+      let user: User | null = null;
       let isAnonymous = false;
 
       const idUser = req.jwt?.user_id;
