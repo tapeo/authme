@@ -1,5 +1,5 @@
-import { UserModel } from "..";
-import { User } from "../model/user.model";
+import { BaseUserModel } from "..";
+import { BaseUser } from "../types/base-user";
 
 export class UserService {
   public static get = async ({
@@ -8,7 +8,7 @@ export class UserService {
   }: {
     type?: string;
     search?: string;
-  }): Promise<User[]> => {
+  }): Promise<BaseUser[]> => {
     const query: any = {};
 
     if (type) {
@@ -22,7 +22,7 @@ export class UserService {
       ];
     }
 
-    const users = await UserModel.find(query);
+    const users = await BaseUserModel.find(query);
 
     return users;
   };
@@ -30,8 +30,8 @@ export class UserService {
   public static getById = async (
     id: string,
     ignore: string[] = []
-  ): Promise<User | null> => {
-    const user = await UserModel.findById(id).select(
+  ): Promise<BaseUser | null> => {
+    const user = await BaseUserModel.findById(id).select(
       ignore.map((field) => `-${field}`).join(" ")
     );
 
@@ -40,10 +40,10 @@ export class UserService {
 
   public static getUserByEmail = async (
     email: string
-  ): Promise<User | null> => {
+  ): Promise<BaseUser | null> => {
     const emailSanitized = email.trim();
 
-    const user = await UserModel.findOne({ email: emailSanitized });
+    const user = await BaseUserModel.findOne({ email: emailSanitized });
 
     return user;
   };
@@ -52,8 +52,8 @@ export class UserService {
     email: string,
     passwordEncrypted: string,
     isAnonymous: boolean = false
-  ): Promise<User | null> => {
-    const user = await UserModel.create({
+  ): Promise<BaseUser | null> => {
+    const user = await BaseUserModel.create({
       email,
       password: passwordEncrypted,
       is_anonymous: isAnonymous,
@@ -65,8 +65,8 @@ export class UserService {
   public static patch = async (
     idUser: string,
     data: any
-  ): Promise<User | null> => {
-    const user = await UserModel.findByIdAndUpdate(idUser, data, {
+  ): Promise<BaseUser | null> => {
+    const user = await BaseUserModel.findByIdAndUpdate(idUser, data, {
       new: true,
     });
 

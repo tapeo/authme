@@ -8,10 +8,10 @@ import { appConfig, OtpModel, PlunkExtension } from "../index";
 import { setCookies } from "../libs/cookie";
 import { encrypt } from "../libs/crypto";
 import { generateAccessToken, generateRefreshToken } from "../libs/jwt";
-import { OtpPurpose } from "../model/otp.model";
-import { User } from "../model/user.model";
+import { OtpPurpose } from "../models/otp.model";
 import { RefreshTokenService } from "../services/refresh-token.service";
 import { UserService } from "../services/user.service";
+import { BaseUser } from "../types/base-user";
 
 export class SignupController {
   private static expiresAt = 10 * 60 * 1000;
@@ -242,7 +242,7 @@ export class SignupController {
       const passwordEncrypted = await bcrypt.hash(password, 10);
       const sanitizedEmail = email.trim().toLowerCase();
 
-      let user: User | null = null;
+      let user: BaseUser | null = null;
       let isAnonymous = false;
 
       const idUser = req.jwt?.user_id;

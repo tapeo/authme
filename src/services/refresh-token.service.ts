@@ -1,5 +1,6 @@
-import { appConfig, UserModel } from "..";
-import { RefreshToken, User } from "../model/user.model";
+import { appConfig, BaseUserModel } from "..";
+import { BaseUser } from "../types/base-user";
+import { RefreshToken } from "../types/refresh-token";
 
 export class RefreshTokenService {
 
@@ -12,13 +13,13 @@ export class RefreshTokenService {
       encrypted_jwt: refreshToken,
     };
 
-    await UserModel.findByIdAndUpdate(
+    await BaseUserModel.findByIdAndUpdate(
       userId,
       { $push: { refresh_tokens: data } },
       { new: true, useFindAndModify: false }
     );
 
-    const user = await UserModel.findById(userId);
+    const user: BaseUser | null = await BaseUserModel.findById(userId);
 
     if (!user) {
       return null;
@@ -29,7 +30,7 @@ export class RefreshTokenService {
     );
 
     if (validTokens.length < user.refresh_tokens.length) {
-      await UserModel.findByIdAndUpdate(
+      await BaseUserModel.findByIdAndUpdate(
         userId,
         { $set: { refresh_tokens: validTokens } },
         { new: true, useFindAndModify: false }
@@ -42,7 +43,7 @@ export class RefreshTokenService {
   public static getByUserId = async (
     userId: string
   ): Promise<RefreshToken[]> => {
-    const user = await UserModel.findById(userId);
+    const user: BaseUser | null = await BaseUserModel.findById(userId);
 
     if (!user) {
       return [];
@@ -54,8 +55,8 @@ export class RefreshTokenService {
   public static delete = async (
     userId: string,
     encryptedRefreshToken: string
-  ): Promise<User | null> => {
-    const user = await UserModel.findByIdAndUpdate(
+  ): Promise<BaseUser | null> => {
+    const user = await BaseUserModel.findByIdAndUpdate(
       userId,
       { $pull: { refresh_tokens: { encrypted_jwt: encryptedRefreshToken } } },
       { new: true, useFindAndModify: false }

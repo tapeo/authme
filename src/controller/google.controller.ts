@@ -259,9 +259,7 @@ export class GoogleController {
         user: {
           id: user._id.toString(),
           email: user.email,
-          name: user.name,
-          pictureUrl: user.picture_url,
-          createdAt: user.created_at
+          picture_url: user.picture_url,
         }
       }
     });

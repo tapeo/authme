@@ -12,7 +12,7 @@ import path from "path";
 import connectDB from "./libs/mongo";
 import { extendResponse } from "./types/response";
 
-import { Model, Schema } from "mongoose";
+import { Model } from "mongoose";
 import { Config, DefaultConfig } from "./config";
 import { GoogleController } from "./controller/google.controller";
 import { LoginController } from "./controller/login.controller";
@@ -23,11 +23,12 @@ import { SignupController } from "./controller/signup.controller";
 import jwtDecodeMiddleware from "./middleware/jwt-decode";
 import { updateLastAccess } from "./middleware/last-access.middleware";
 import signupMiddleware from "./middleware/signup.middleware";
+import registerBaseUserModel from "./models/base-user.model";
 import registerOAuthStateModel, {
   IOAuthState,
-} from "./model/oauth-state.model";
-import registerOtpModel, { IOtp } from "./model/otp.model";
-import registerUserModel, { User } from "./model/user.model";
+} from "./models/oauth-state.model";
+import registerOtpModel, { IOtp } from "./models/otp.model";
+import { BaseUser } from "./types/base-user";
 
 export * from "./config";
 export * from "./extensions";
@@ -40,8 +41,7 @@ const publicPath = path.join(dirname(__filename), "public");
 
 export let OAuthStateModel: Model<IOAuthState>;
 export let OtpModel: Model<IOtp>;
-export let UserModel: Model<User>;
-export let UserSchema: Schema<User>;
+export let BaseUserModel: Model<BaseUser>;
 
 export let appConfig: DefaultConfig;
 
@@ -78,10 +78,7 @@ export async function start(app: Express, config: Config) {
 
   OAuthStateModel = registerOAuthStateModel(appConfig.mongoose.instance);
   OtpModel = registerOtpModel(appConfig.mongoose.instance);
-
-  const userModelRegistration = registerUserModel(appConfig.mongoose.instance);
-  UserModel = userModelRegistration.UserModel;
-  UserSchema = userModelRegistration.UserSchema;
+  BaseUserModel = registerBaseUserModel(appConfig.mongoose.instance);
 
   const corsOptions = {
     origin: appConfig.origin,

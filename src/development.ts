@@ -1,6 +1,6 @@
 import express from "express";
 import mongoose from "mongoose";
-import { start, UserModel } from "./index";
+import { BaseUserModel, start } from "./index";
 import jwtDecodeMiddleware from "./middleware/jwt-decode";
 
 const app = express();
@@ -52,8 +52,8 @@ app.get("/test-mongoose-transaction", async (req, res) => {
     const session = await mongoose.startSession();
     session.startTransaction();
     try {
-        await UserModel.deleteMany({});
-        const user = await UserModel.create([
+        await BaseUserModel.deleteMany({});
+        const user = await BaseUserModel.create([
             {
                 name: "John Doe",
                 email: "john.doe@example.com",
