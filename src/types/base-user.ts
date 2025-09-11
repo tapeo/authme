@@ -1,6 +1,7 @@
 import { RefreshToken } from "./refresh-token";
 
 export interface BaseUser {
+  _id?: string;
   email: string;
   password: string;
   picture_url: string | null;

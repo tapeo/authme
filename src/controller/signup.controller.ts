@@ -200,12 +200,12 @@ export class SignupController {
       });
     }
 
-    const accessToken = generateAccessToken(user._id.toString(), randomEmail);
-    const refreshToken = generateRefreshToken(user._id.toString(), randomEmail);
+    const accessToken = generateAccessToken(user._id!, randomEmail);
+    const refreshToken = generateRefreshToken(user._id!, randomEmail);
     const encryptedRefreshToken = encrypt(refreshToken);
 
     const posted = await RefreshTokenService.post(
-      user._id.toString(),
+      user._id!,
       encryptedRefreshToken
     );
     if (!posted) {
@@ -225,7 +225,7 @@ export class SignupController {
       status: "success",
       message: "Anonymous registration successful",
       data: {
-        id: user._id.toString(),
+        id: user._id!,
         access_token: accessToken,
         refresh_token: refreshToken,
       },
@@ -252,7 +252,7 @@ export class SignupController {
       }
 
       if (user?.is_anonymous === true) {
-        user = await UserService.patch(user._id.toString(), {
+        user = await UserService.patch(user._id!, {
           email: sanitizedEmail,
           password: passwordEncrypted,
           is_anonymous: false,
@@ -280,7 +280,7 @@ export class SignupController {
         status: "success",
         message: "Registration successful, now you can login",
         data: {
-          id: user._id.toString(),
+          id: user._id!,
           merged_anonymous: isAnonymous,
         },
       });

@@ -132,21 +132,21 @@ export class GoogleController {
           if (name) updateData.name = name;
           if (pictureUrl) updateData.picture_url = pictureUrl;
 
-          await UserService.patch(user._id.toString(), updateData);
+          await UserService.patch(user._id!, updateData);
         }
       } else if (pictureUrl && !user.picture_url) {
-        await UserService.patch(user._id.toString(), {
+        await UserService.patch(user._id!, {
           picture_url: pictureUrl,
         });
       }
 
-      const jwtAccessToken = generateAccessToken(user._id.toString(), email);
-      const jwtRefreshToken = generateRefreshToken(user._id.toString(), email);
+      const jwtAccessToken = generateAccessToken(user._id!, email);
+      const jwtRefreshToken = generateRefreshToken(user._id!, email);
 
       const encryptedRefreshToken = encrypt(jwtRefreshToken);
 
       const refreshToken = await RefreshTokenService.post(
-        user._id.toString(),
+        user._id!,
         encryptedRefreshToken
       );
 
@@ -226,22 +226,22 @@ export class GoogleController {
         const updateData: any = {};
         if (name) updateData.name = name;
         if (pictureUrl) updateData.picture_url = pictureUrl;
-        await UserService.patch(user._id.toString(), updateData);
+        await UserService.patch(user._id!, updateData);
       }
     } else if (pictureUrl && !user.picture_url) {
       // Update picture if not already set
-      await UserService.patch(user._id.toString(), {
+      await UserService.patch(user._id!, {
         picture_url: pictureUrl,
       });
     }
 
     // Generate tokens (same as your web flow)
-    const jwtAccessToken = generateAccessToken(user._id.toString(), email);
-    const jwtRefreshToken = generateRefreshToken(user._id.toString(), email);
+    const jwtAccessToken = generateAccessToken(user._id!, email);
+    const jwtRefreshToken = generateRefreshToken(user._id!, email);
     const encryptedRefreshToken = encrypt(jwtRefreshToken);
 
     const refreshToken = await RefreshTokenService.post(
-      user._id.toString(),
+      user._id!,
       encryptedRefreshToken
     );
 
@@ -257,7 +257,7 @@ export class GoogleController {
         access_token: jwtAccessToken,
         refresh_token: jwtRefreshToken,
         user: {
-          id: user._id.toString(),
+          id: user._id!,
           email: user.email,
           picture_url: user.picture_url,
         }

@@ -33,18 +33,18 @@ export class LoginController {
 
     if (passwordMatch) {
       const accessToken = generateAccessToken(
-        user._id.toString(),
+        user._id!,
         sanitizedEmail
       );
       const refreshToken = generateRefreshToken(
-        user._id.toString(),
+        user._id!,
         sanitizedEmail
       );
 
       const encryptedRefreshToken = encrypt(refreshToken);
 
       const posted = await RefreshTokenService.post(
-        user._id.toString(),
+        user._id!,
         encryptedRefreshToken
       );
 
