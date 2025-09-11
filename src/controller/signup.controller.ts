@@ -290,8 +290,13 @@ export class SignupController {
           status: "error",
           message: "Email already in use",
         });
+      } else {
+        return res.status(500).jsonTyped({
+          status: "error",
+          message: "Failed to create user",
+          data: error,
+        });
       }
-      throw error;
     }
   };
 

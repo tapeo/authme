@@ -1,8 +1,6 @@
-import { Types } from "mongoose";
 import { RefreshToken } from "./refresh-token";
 
 export interface BaseUser {
-  _id: Types.ObjectId;
   email: string;
   password: string;
   picture_url: string | null;
