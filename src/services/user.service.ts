@@ -1,5 +1,5 @@
 import { BaseUserModel } from "..";
-import { User } from "../types/user";
+import { BaseUser } from "../types/base-user";
 
 export class UserService {
   public static get = async ({
@@ -8,7 +8,7 @@ export class UserService {
   }: {
     type?: string;
     search?: string;
-  }): Promise<User[]> => {
+  }): Promise<BaseUser[]> => {
     const query: any = {};
 
     if (type) {
@@ -30,7 +30,7 @@ export class UserService {
   public static getById = async (
     id: string,
     ignore: string[] = []
-  ): Promise<User | null> => {
+  ): Promise<BaseUser | null> => {
     const user = await BaseUserModel.findById(id).select(
       ignore.map((field) => `-${field}`).join(" ")
     );
@@ -40,7 +40,7 @@ export class UserService {
 
   public static getUserByEmail = async (
     email: string
-  ): Promise<User | null> => {
+  ): Promise<BaseUser | null> => {
     const emailSanitized = email.trim();
 
     const user = await BaseUserModel.findOne({ email: emailSanitized });
@@ -52,7 +52,7 @@ export class UserService {
     email: string,
     passwordEncrypted: string,
     isAnonymous: boolean = false
-  ): Promise<User | null> => {
+  ): Promise<BaseUser | null> => {
     const user = await BaseUserModel.create({
       email,
       password: passwordEncrypted,
@@ -66,7 +66,7 @@ export class UserService {
   public static patch = async (
     idUser: string,
     data: any
-  ): Promise<User | null> => {
+  ): Promise<BaseUser | null> => {
     const user = await BaseUserModel.findByIdAndUpdate(idUser, data, {
       new: true,
     });

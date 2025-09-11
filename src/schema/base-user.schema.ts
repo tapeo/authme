@@ -1,7 +1,7 @@
 import { Schema } from "mongoose";
 import { appConfig } from "..";
+import { BaseUser } from "../types/base-user";
 import { RefreshToken } from "../types/refresh-token";
-import { User } from "../types/user";
 
 const RefreshTokenSchema = new Schema<RefreshToken>({
   expires_at: {
@@ -14,7 +14,7 @@ const RefreshTokenSchema = new Schema<RefreshToken>({
   },
 });
 
-const baseUserSchema = new Schema<User>({
+const baseUserSchema = new Schema<BaseUser>({
   email: {
     type: String,
     required: true,

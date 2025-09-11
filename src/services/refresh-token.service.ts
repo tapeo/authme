@@ -1,6 +1,6 @@
 import { appConfig, BaseUserModel } from "..";
+import { BaseUser } from "../types/base-user";
 import { RefreshToken } from "../types/refresh-token";
-import { User } from "../types/user";
 
 export class RefreshTokenService {
 
@@ -19,7 +19,7 @@ export class RefreshTokenService {
       { new: true, useFindAndModify: false }
     );
 
-    const user: User | null = await BaseUserModel.findById(userId);
+    const user: BaseUser | null = await BaseUserModel.findById(userId);
 
     if (!user) {
       return null;
@@ -43,7 +43,7 @@ export class RefreshTokenService {
   public static getByUserId = async (
     userId: string
   ): Promise<RefreshToken[]> => {
-    const user: User | null = await BaseUserModel.findById(userId);
+    const user: BaseUser | null = await BaseUserModel.findById(userId);
 
     if (!user) {
       return [];
@@ -55,7 +55,7 @@ export class RefreshTokenService {
   public static delete = async (
     userId: string,
     encryptedRefreshToken: string
-  ): Promise<User | null> => {
+  ): Promise<BaseUser | null> => {
     const user = await BaseUserModel.findByIdAndUpdate(
       userId,
       { $pull: { refresh_tokens: { encrypted_jwt: encryptedRefreshToken } } },
