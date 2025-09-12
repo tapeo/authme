@@ -56,14 +56,14 @@ baseUserSchema.index({ email: 1 }, { unique: true });
 
 baseUserSchema.pre("save", async function (next) {
   if (appConfig?.mongoose?.user_schema?.pre) {
-    appConfig.mongoose.user_schema.pre(this as any);
+    appConfig.mongoose.user_schema.pre(this);
   }
   next();
 });
 
 baseUserSchema.post("save", async function (doc) {
   if (appConfig?.mongoose?.user_schema?.post) {
-    appConfig.mongoose.user_schema.post(doc as any);
+    appConfig.mongoose.user_schema.post(doc);
   }
 });
 
