@@ -1,5 +1,4 @@
 import { Schema } from "mongoose";
-import { appConfig } from "..";
 import { BaseUser } from "../types/base-user";
 import { RefreshToken } from "../types/refresh-token";
 
@@ -53,18 +52,5 @@ const baseUserSchema = new Schema<BaseUser>({
 });
 
 baseUserSchema.index({ email: 1 }, { unique: true });
-
-baseUserSchema.pre("save", async function (next) {
-  if (appConfig?.mongoose?.user_schema?.pre) {
-    appConfig.mongoose.user_schema.pre(this);
-  }
-  next();
-});
-
-baseUserSchema.post("save", async function (doc) {
-  if (appConfig?.mongoose?.user_schema?.post) {
-    appConfig.mongoose.user_schema.post(doc);
-  }
-});
 
 export default baseUserSchema;

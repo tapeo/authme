@@ -13,10 +13,6 @@ export interface MongoConfig {
     prod_db_name?: string;
     test_db_name?: string;
     directConnection?: boolean;
-    user_schema?: {
-        pre?: (doc: BaseUser) => Promise<void>;
-        post?: (doc: BaseUser) => Promise<void>;
-    };
 }
 
 export interface JwtConfig {
