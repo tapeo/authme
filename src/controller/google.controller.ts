@@ -6,6 +6,7 @@ import { Telegram } from "../extensions/telegram.extension";
 import { setCookies } from "../libs/cookie";
 import { encrypt } from "../libs/crypto";
 import { generateAccessToken, generateRefreshToken } from "../libs/jwt";
+import { OAuthStateFlowType } from "../models/oauth-state.model";
 import { OAuthStateService } from "../services/oauth-state.service";
 import { RefreshTokenService } from "../services/refresh-token.service";
 import { UserService } from "../services/user.service";
@@ -21,7 +22,7 @@ export class GoogleController {
       // Generate a random state for CSRF protection
       const state = crypto.randomBytes(16).toString("hex");
 
-      await OAuthStateService.create(state, "login");
+      await OAuthStateService.create(state, OAuthStateFlowType.login);
 
       const authUrl = new URL(this.googleAuthUri);
       authUrl.searchParams.append("client_id", appConfig.google_auth!.client_id);
@@ -46,7 +47,7 @@ export class GoogleController {
       // Generate a random state for CSRF protection
       const state = crypto.randomBytes(16).toString("hex");
 
-      await OAuthStateService.create(state, "signup");
+      await OAuthStateService.create(state, OAuthStateFlowType.signup);
 
       const authUrl = new URL(this.googleAuthUri);
       authUrl.searchParams.append("client_id", appConfig.google_auth!.client_id);

@@ -1,11 +1,12 @@
 import { OAuthStateModel } from "..";
+import { OAuthStateFlowType } from "../models/oauth-state.model";
 
 export class OAuthStateService {
   private static expireAfter: number = 10 * 60 * 1000;
 
   public static create = async (
     state: string,
-    flowType: "login" | "signup",
+    flowType: OAuthStateFlowType,
     expiresIn: number = this.expireAfter
   ) => {
     const oauthState = await OAuthStateModel.create({
@@ -17,19 +18,18 @@ export class OAuthStateService {
     return oauthState;
   };
 
-  public static verifyAndConsume = async (state: string): Promise<{ isValid: boolean; flowType?: "login" | "signup" }> => {
+  public static verifyAndConsume = async (state: string): Promise<{ isValid: boolean, flowType: OAuthStateFlowType | null }> => {
     const oauthState = await OAuthStateModel.findOne({
       state,
       expires_at: { $gt: new Date() },
     });
 
     if (!oauthState) {
-      return { isValid: false };
+      return { isValid: false, flowType: null };
     }
 
-    const flowType = oauthState.flow_type;
     await OAuthStateModel.deleteOne({ _id: oauthState._id });
 
-    return { isValid: true, flowType };
+    return { isValid: true, flowType: oauthState.flow_type as OAuthStateFlowType };
   };
 }
