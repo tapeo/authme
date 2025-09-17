@@ -5,28 +5,31 @@ export class OAuthStateService {
 
   public static create = async (
     state: string,
+    flowType: "login" | "signup",
     expiresIn: number = this.expireAfter
   ) => {
     const oauthState = await OAuthStateModel.create({
       state,
+      flow_type: flowType,
       expires_at: new Date(Date.now() + expiresIn),
     });
 
     return oauthState;
   };
 
-  public static verifyAndConsume = async (state: string): Promise<boolean> => {
+  public static verifyAndConsume = async (state: string): Promise<{ isValid: boolean; flowType?: "login" | "signup" }> => {
     const oauthState = await OAuthStateModel.findOne({
       state,
       expires_at: { $gt: new Date() },
     });
 
     if (!oauthState) {
-      return false;
+      return { isValid: false };
     }
 
+    const flowType = oauthState.flow_type;
     await OAuthStateModel.deleteOne({ _id: oauthState._id });
 
-    return true;
+    return { isValid: true, flowType };
   };
 }

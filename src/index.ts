@@ -110,9 +110,9 @@ export async function start(app: Express, config: Config) {
   app.post("/auth/refresh-token", RefreshTokenController.refreshTokenHandler);
   app.post("/auth/logout", LoginController.logout);
 
-  app.get("/auth/google", GoogleController.auth);
+  app.get("/auth/google/login", GoogleController.authLogin);
+  app.get("/auth/google/signup", GoogleController.authSignup);
   app.get("/auth/google/callback", GoogleController.callback);
-  app.post("/auth/google/mobile", GoogleController.mobileAuth);
 
   app.post("/auth/password/forgot", PasswordController.forgotPasswordHandler);
   app.get(

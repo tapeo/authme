@@ -2,6 +2,7 @@ import { Mongoose } from "mongoose";
 
 export interface IOAuthState extends Document {
   state: string;
+  flow_type: "login" | "signup";
   expires_at: Date;
   created_at: Date;
   updated_at: Date;
@@ -15,6 +16,11 @@ export function registerOAuthStateModel(mongooseInstance: Mongoose) {
         required: true,
         unique: true,
         index: true,
+      },
+      flow_type: {
+        type: String,
+        enum: ["login", "signup"],
+        required: true,
       },
       expires_at: {
         type: Date,
