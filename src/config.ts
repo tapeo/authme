@@ -49,7 +49,9 @@ export interface GoogleAuthConfig {
     client_id: string;
     client_secret: string;
     redirect_uri: string;
-    error_redirect_uri: string;
+    generic_error_redirect_uri: string;
+    login_error_redirect_uri: string;
+    signup_error_redirect_uri: string;
     authenticated_redirect_uri: string;
 }
 

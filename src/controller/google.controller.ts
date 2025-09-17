@@ -35,7 +35,7 @@ export class GoogleController {
       res.redirect(authUrl.toString());
     } catch (error) {
       console.error("Error initiating Google login:", error);
-      res.redirect(appConfig.google_auth!.error_redirect_uri);
+      res.redirect(appConfig.google_auth!.login_error_redirect_uri);
     }
   };
 
@@ -58,7 +58,7 @@ export class GoogleController {
       res.redirect(authUrl.toString());
     } catch (error) {
       console.error("Error initiating Google signup:", error);
-      res.redirect(appConfig.google_auth!.error_redirect_uri);
+      res.redirect(appConfig.google_auth!.signup_error_redirect_uri);
     }
   };
 
@@ -67,14 +67,14 @@ export class GoogleController {
 
     if (!state || typeof state !== "string") {
       console.error("Invalid state parameter", state);
-      res.redirect(appConfig.google_auth!.error_redirect_uri);
+      res.redirect(appConfig.google_auth!.generic_error_redirect_uri);
       return;
     }
 
     const stateResult = await OAuthStateService.verifyAndConsume(state);
     if (!stateResult.isValid) {
       console.error("Invalid or expired state", state);
-      res.redirect(appConfig.google_auth!.error_redirect_uri);
+      res.redirect(appConfig.google_auth!.generic_error_redirect_uri);
       return;
     }
 
@@ -82,7 +82,7 @@ export class GoogleController {
 
     if (!code) {
       console.error("Authorization code not provided", code);
-      res.redirect(appConfig.google_auth!.error_redirect_uri);
+      res.redirect(appConfig.google_auth!.generic_error_redirect_uri);
       return;
     }
 
@@ -104,7 +104,7 @@ export class GoogleController {
       if (!tokenResponse.ok) {
         const errorData = await tokenResponse.json();
         console.error("Google token error:", errorData);
-        res.redirect(appConfig.google_auth!.error_redirect_uri);
+        res.redirect(appConfig.google_auth!.generic_error_redirect_uri);
         return;
       }
 
@@ -119,7 +119,7 @@ export class GoogleController {
 
       if (!userInfoResponse.ok) {
         console.error("Google user info error:", await userInfoResponse.json());
-        res.redirect(appConfig.google_auth!.error_redirect_uri);
+        res.redirect(appConfig.google_auth!.generic_error_redirect_uri);
         return;
       }
 
@@ -129,7 +129,7 @@ export class GoogleController {
       const pictureUrl = userData.picture || null;
 
       if (!email) {
-        res.redirect(appConfig.google_auth!.error_redirect_uri);
+        res.redirect(appConfig.google_auth!.generic_error_redirect_uri);
         return;
       }
 
@@ -138,7 +138,7 @@ export class GoogleController {
       if (flowType === "login") {
         if (!user) {
           console.error("User not found for login", email);
-          res.redirect(appConfig.google_auth!.error_redirect_uri);
+          res.redirect(appConfig.google_auth!.login_error_redirect_uri);
           return;
         }
 
@@ -150,7 +150,7 @@ export class GoogleController {
       } else { // signup flow
         if (user) {
           console.error("User already exists for signup", email);
-          res.redirect(appConfig.google_auth!.error_redirect_uri);
+          res.redirect(appConfig.google_auth!.signup_error_redirect_uri);
           return;
         }
 
@@ -161,7 +161,7 @@ export class GoogleController {
         user = await UserService.post(email, passwordEncrypted);
 
         if (!user) {
-          res.redirect(appConfig.google_auth!.error_redirect_uri);
+          res.redirect(appConfig.google_auth!.generic_error_redirect_uri);
           return;
         }
 
@@ -189,7 +189,7 @@ export class GoogleController {
       );
 
       if (!refreshToken) {
-        res.redirect(appConfig.google_auth!.error_redirect_uri);
+        res.redirect(appConfig.google_auth!.generic_error_redirect_uri);
         return;
       }
 
@@ -198,7 +198,7 @@ export class GoogleController {
       res.redirect(appConfig.google_auth!.authenticated_redirect_uri);
     } catch (error) {
       console.error("Google auth error:", error);
-      res.redirect(appConfig.google_auth!.error_redirect_uri);
+      res.redirect(appConfig.google_auth!.generic_error_redirect_uri);
     }
   };
 }
