@@ -25,29 +25,32 @@ export class PasswordController {
 
     await user.save();
 
+    const resetBaseUrl = PasswordController.resolveResetBaseUrl();
+    const resetUrl = new URL(`/auth/password/reset/${token}`, resetBaseUrl).toString();
+
     const subject = "Password Reset Request";
     const body = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <p>Hello,</p>
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <p>Hello,</p>
         
-        <p>A password reset was requested for your account.</p>
+          <p>A password reset was requested for your account.</p>
         
-        <p><a href="https://${req.headers.host}/auth/password/reset/${token}" 
-              style="color: #007bff;">Click here to reset your password</a></p>
+          <p><a href="${resetUrl}" 
+                style="color: #007bff;">Click here to reset your password</a></p>
         
-        <p>This link will expire in 1 hour.</p>
+          <p>This link will expire in 1 hour.</p>
         
-        <p>If you didn't request this password reset, please ignore this email.</p>
+          <p>If you didn't request this password reset, please ignore this email.</p>
         
-        <p>Best regards,<br>${appConfig?.email?.name} Team</p>
+          <p>Best regards,<br>${appConfig?.email?.name} Team</p>
         
-        <hr style="margin: 20px 0; border: none; border-top: 1px solid #eee;">
-        <p style="font-size: 12px; color: #666;">
-          You received this email because a password reset was requested for your account. 
-          If you didn't make this request, you can safely ignore this email.
-        </p>
-      </div>
-    `;
+          <hr style="margin: 20px 0; border: none; border-top: 1px solid #eee;">
+          <p style="font-size: 12px; color: #666;">
+            You received this email because a password reset was requested for your account. 
+            If you didn't make this request, you can safely ignore this email.
+          </p>
+        </div>
+      `;
 
     try {
       if (appConfig?.email?.provider === "plunk") {
@@ -144,4 +147,24 @@ export class PasswordController {
       .status(200)
       .jsonTyped({ status: "success", message: "Password has been updated" });
   };
+
+  private static resolveResetBaseUrl(): string {
+    const trustedOrigin = appConfig?.origin?.find((origin) => {
+      return origin.startsWith("https://") || origin.startsWith("http://");
+    });
+
+    if (trustedOrigin) {
+      return trustedOrigin;
+    }
+
+    const protocol = appConfig?.server?.https ? "https" : "http";
+    const host = appConfig?.server?.host || "localhost";
+    const port = appConfig?.server?.port;
+
+    if (port && port !== 80 && port !== 443) {
+      return `${protocol}://${host}:${port}`;
+    }
+
+    return `${protocol}://${host}`;
+  }
 }
