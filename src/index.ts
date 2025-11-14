@@ -33,7 +33,7 @@ export * from "./middleware";
 export * from "./services";
 export * from "./types";
 
-const publicPath = path.join(dirname(__filename), "public");
+export const publicPath = path.join(dirname(__filename), "public");
 
 export let OAuthStateModel: Model<IOAuthState>;
 export let OtpModel: Model<IOtp>;
@@ -122,7 +122,7 @@ export async function start(app: Express, config: Config) {
   app.post("/auth/password/update", PasswordController.updatePasswordHandler);
 
   app.get("/auth/reset-password.html", (req, res) => {
-    res.sendFile(publicPath + "/reset-password.html");
+    res.sendFile(path.join(publicPath, "reset-password.html"));
   });
 
   const useHttps = appConfig?.server?.https ?? false;

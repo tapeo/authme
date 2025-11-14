@@ -27,6 +27,7 @@ export interface AuthConfig {
     access_token_secret: string;
     refresh_token_secret: string;
     use_otp: boolean;
+    password_reset_redirect_uri?: string;
 }
 
 export interface CorsConfig {

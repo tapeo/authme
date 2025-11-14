@@ -25,8 +25,7 @@ export class PasswordController {
 
     await user.save();
 
-    const resetBaseUrl = PasswordController.resolveResetBaseUrl();
-    const resetUrl = new URL(`/auth/password/reset/${token}`, resetBaseUrl).toString();
+    const resetUrl = PasswordController.buildResetUrl(token);
 
     const subject = "Password Reset Request";
     const body = `
@@ -148,23 +147,8 @@ export class PasswordController {
       .jsonTyped({ status: "success", message: "Password has been updated" });
   };
 
-  private static resolveResetBaseUrl(): string {
-    const trustedOrigin = appConfig?.origin?.find((origin) => {
-      return origin.startsWith("https://") || origin.startsWith("http://");
-    });
-
-    if (trustedOrigin) {
-      return trustedOrigin;
-    }
-
-    const protocol = appConfig?.server?.https ? "https" : "http";
-    const host = appConfig?.server?.host || "localhost";
-    const port = appConfig?.server?.port;
-
-    if (port && port !== 80 && port !== 443) {
-      return `${protocol}://${host}:${port}`;
-    }
-
-    return `${protocol}://${host}`;
+  private static buildResetUrl(token: string): string {
+    const uri = appConfig.auth.password_reset_redirect_uri ?? process.env.PASSWORD_RESET_REDIRECT_URI;
+    return `${uri}/${token}`;
   }
 }
