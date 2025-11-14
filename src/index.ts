@@ -125,6 +125,10 @@ export async function start(app: Express, config: Config) {
     res.sendFile(path.join(publicPath, "reset-password.html"));
   });
 
+  app.get("/auth/reset-password-success.html", (req, res) => {
+    res.sendFile(path.join(publicPath, "reset-password-success.html"));
+  });
+
   const useHttps = appConfig?.server?.https ?? false;
 
   if (useHttps) {

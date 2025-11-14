@@ -141,10 +141,7 @@ export class PasswordController {
     user.reset_password_expires = null;
 
     await user.save();
-
-    res
-      .status(200)
-      .jsonTyped({ status: "success", message: "Password has been updated" });
+    res.redirect("/auth/reset-password-success.html");
   };
 
   private static buildResetUrl(token: string): string {
